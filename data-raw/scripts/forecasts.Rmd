@@ -1,0 +1,113 @@
+---
+title: "forecasts"
+author: "Charles T. Gray"
+date: "16/09/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+[source](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/BPCDH5)
+
+```{r message = FALSE}
+library(tidyverse)
+
+raw_dat <-
+    list.files("../") %>%
+        str_subset("fcast") %>%
+        paste0("../", .) %>%
+        map(read_csv)
+
+# raw_dat <- list.files("data-raw") %>%
+#     str_subset("fcast") %>%
+#     paste0("data-raw/", .) %>%
+#     map(read_csv)
+
+
+
+```
+
+```{r}
+library(gjp)
+
+
+# bind together
+all_forecasts <- raw_dat %>% 
+        map(select, -team) %>% 
+        bind_rows() %>% 
+    dplyr::filter(q_status == "closed") %>%  # only closed questions
+    mutate(raw_dat_obs = row_number())
+
+
+```
+
+```{r}
+
+# we need to get q_type from the ifps csv.
+forecasts_binary <- 
+    questions %>% 
+    select(ifp_id, q_text, q_type) %>% # here's where we can add stuff from ifps.csv
+    right_join(all_forecasts) %>% 
+    dplyr::filter(q_type == 0) # binary questions only
+
+    
+
+
+```
+
+
+```{r}
+
+# get first and last timepoints for each user & question
+forecasts_all_times <- 
+    forecasts_binary %>% 
+    group_by(ifp_id, user_id) %>% 
+    summarise(
+        min_date_time = min(timestamp),
+        max_date_time = max(timestamp),
+        min_eq_max = min_date_time == max_date_time
+    )
+
+
+
+
+```
+
+
+```{r}
+ 
+# now to get the forecasts with more than one timepoint
+
+forecasts_mtp <- 
+    forecasts_all_times %>% 
+    dplyr::filter(!min_eq_max) %>% 
+    gather(key = "time_terminal",
+           value = "timestamp",
+           min_date_time, max_date_time) %>% 
+    left_join(forecasts_binary, by = c("ifp_id", "user_id", "timestamp")) %>% 
+    ungroup() 
+
+# for one time point
+forecasts_otp <-
+    forecasts_all_times %>% 
+    dplyr::filter(min_eq_max) %>% 
+    mutate(time_terminal = "single_entry",
+           timestamp = max_date_time
+           ) %>% 
+    select(-min_date_time, -max_date_time) %>% 
+    left_join(forecasts_binary, by = c("ifp_id", "user_id", "timestamp")) %>% 
+    ungroup()
+
+forecasts <- bind_rows(forecasts_otp, forecasts_mtp)
+
+```
+
+
+
+```{r eval=FALSE}
+usethis::use_data(forecasts)
+
+```
+
