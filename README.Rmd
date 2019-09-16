@@ -1,0 +1,114 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# gjp
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+
+## installation
+
+You can install the current of gjp  with:
+
+``` {r eval=FALSE}
+
+# you may need to install devtools first with
+# install.packages("devtools")
+devtools::install_github("softloud/gjp")
+```
+
+
+
+## what's in it?
+
+This is a data package containing wrangled results for political knowledge from gjp data on the [Harvard Dataverse](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/BPCDH5). It's creative commons. 
+
+I imagine you'll be primarily interested in the dataset with outcomes. 
+
+The `forecasts` dataset is combines the 4 year's csvs of survey_fcasts data and then filters it:
+
+- binary outcomes (by combining with ifps data set)
+- "closed" status questions
+- if multiple entries, first and last (see `time_terminal` for type of entry)
+
+Documentation coming, but here's the dataset in the meantime. 
+
+```{r message=FALSE}
+
+library(gjp)
+library(tidyverse)
+
+
+# this code displays the data question_results which will be available once you 
+# install() and library() gjp
+forecasts %>% 
+  head() %>% 
+  select(-q_text) %>% # remove question text for formatting
+  kableExtra::kable()
+
+```
+
+But that code just makes it pretty. To access it in R, after loading `gjp::` with `library(gjp)`:
+
+```{r}
+ 
+forecasts 
+
+# you can write this table out of R to a .csv with 
+# readr::write_csv(question_results, "<path/file>.csv") 
+# where you replace <path/file> with your desired file name and location.
+
+```
+
+
+## these data are documented
+
+This is (optimistically) where you'll find more information about the size of the table, and what columns and rows it has. 
+
+```{r eval=FALSE}
+# check out the help for a dataset in gjp
+library(gjp)
+?question_results
+
+```
+
+
+## but wait there's more
+
+But there's some other datasets, too.
+
+```{r}
+
+# question results
+question_results %>% head()
+
+# meta data about all data files
+meta_data %>% head()
+
+# participants responses raw; the outcomes are extracted from this
+participants_responses %>% dim()
+
+# questions text, number, and year reference
+questions_text %>% head()
+
+# questions reference file provided
+questions %>% dim()
+
+```
+
+## upcoming
+
+Those demographics for Bonnie. 
