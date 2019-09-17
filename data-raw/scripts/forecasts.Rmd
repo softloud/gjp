@@ -14,16 +14,20 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r message = FALSE}
 library(tidyverse)
 
-raw_dat <-
-    list.files("../") %>%
-        str_subset("fcast") %>%
-        paste0("../", .) %>%
-        map(read_csv)
+# wtf with the file paths?
 
-# raw_dat <- list.files("data-raw") %>%
-#     str_subset("fcast") %>%
-#     paste0("data-raw/", .) %>%
-#     map(read_csv)
+# for knitting
+# raw_dat <-
+#     list.files("../") %>%
+#         str_subset("fcast") %>%
+#         paste0("../", .) %>%
+#         map(read_csv)
+
+# for running chunk-wise
+raw_dat <- list.files("data-raw") %>%
+    str_subset("fcast") %>%
+    paste0("data-raw/", .) %>%
+    map(read_csv)
 
 
 
@@ -48,7 +52,7 @@ all_forecasts <- raw_dat %>%
 # we need to get q_type from the ifps csv.
 forecasts_binary <- 
     questions %>% 
-    select(ifp_id, q_text, q_type) %>% # here's where we can add stuff from ifps.csv
+    select(ifp_id, q_text, q_type, outcome) %>% # here's where we can add stuff from ifps.csv
     right_join(all_forecasts) %>% 
     dplyr::filter(q_type == 0) # binary questions only
 
@@ -107,7 +111,7 @@ forecasts <- bind_rows(forecasts_otp, forecasts_mtp)
 
 
 ```{r eval=FALSE}
-usethis::use_data(forecasts)
+usethis::use_data(forecasts, overwrite = TRUE)
 
 ```
 

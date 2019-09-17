@@ -915,7 +915,7 @@ forecasts
 #> #   raw_dat_obs <int>
 
 # you can write this table out of R to a .csv with 
-# readr::write_csv(question_results, "<path/file>.csv") 
+# readr::write_csv(forecasts, "<path/file>.csv") 
 # where you replace <path/file> with your desired file name and location.
 ```
 
