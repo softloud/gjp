@@ -56,7 +56,7 @@ library(tidyverse)
 # install() and library() gjp
 forecasts %>% 
   head() %>% 
-  select(-q_text) %>% # remove question text for formatting
+  select(ifp_id, user_id, year, outcome, time_terminal, timestamp, q_type,  q_status) %>% # remove question text for formatting
   kableExtra::kable()
 
 ```
@@ -65,7 +65,8 @@ But that code just makes it pretty. To access it in R, after loading `gjp::` wit
 
 ```{r}
  
-forecasts 
+forecasts
+
 
 # you can write this table out of R to a .csv with 
 # readr::write_csv(forecasts, "<path/file>.csv") 

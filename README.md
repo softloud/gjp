@@ -47,7 +47,7 @@ library(tidyverse)
 # install() and library() gjp
 forecasts %>% 
   head() %>% 
-  select(-q_text) %>% # remove question text for formatting
+  select(ifp_id, user_id, year, outcome, time_terminal, timestamp, q_type,  q_status) %>% # remove question text for formatting
   kableExtra::kable()
 ```
 
@@ -69,9 +69,15 @@ user\_id
 
 </th>
 
+<th style="text-align:right;">
+
+year
+
+</th>
+
 <th style="text-align:left;">
 
-min\_eq\_max
+outcome
 
 </th>
 
@@ -95,79 +101,7 @@ q\_type
 
 <th style="text-align:left;">
 
-ctt
-
-</th>
-
-<th style="text-align:right;">
-
-cond
-
-</th>
-
-<th style="text-align:left;">
-
-training
-
-</th>
-
-<th style="text-align:right;">
-
-forecast\_id
-
-</th>
-
-<th style="text-align:right;">
-
-fcast\_type
-
-</th>
-
-<th style="text-align:left;">
-
-answer\_option
-
-</th>
-
-<th style="text-align:right;">
-
-value
-
-</th>
-
-<th style="text-align:left;">
-
-fcast\_date
-
-</th>
-
-<th style="text-align:right;">
-
-expertise
-
-</th>
-
-<th style="text-align:left;">
-
 q\_status
-
-</th>
-
-<th style="text-align:right;">
-
-viewtime
-
-</th>
-
-<th style="text-align:right;">
-
-year
-
-</th>
-
-<th style="text-align:right;">
-
-raw\_dat\_obs
 
 </th>
 
@@ -191,9 +125,15 @@ raw\_dat\_obs
 
 </td>
 
+<td style="text-align:right;">
+
+1
+
+</td>
+
 <td style="text-align:left;">
 
-TRUE
+b
 
 </td>
 
@@ -217,79 +157,7 @@ single\_entry
 
 <td style="text-align:left;">
 
-2b
-
-</td>
-
-<td style="text-align:right;">
-
-2
-
-</td>
-
-<td style="text-align:left;">
-
-b
-
-</td>
-
-<td style="text-align:right;">
-
-\-197541
-
-</td>
-
-<td style="text-align:right;">
-
-1
-
-</td>
-
-<td style="text-align:left;">
-
-a
-
-</td>
-
-<td style="text-align:right;">
-
-0.50
-
-</td>
-
-<td style="text-align:left;">
-
-2011-09-06
-
-</td>
-
-<td style="text-align:right;">
-
-1
-
-</td>
-
-<td style="text-align:left;">
-
 closed
-
-</td>
-
-<td style="text-align:right;">
-
-NA
-
-</td>
-
-<td style="text-align:right;">
-
-1
-
-</td>
-
-<td style="text-align:right;">
-
-5556
 
 </td>
 
@@ -309,9 +177,15 @@ NA
 
 </td>
 
+<td style="text-align:right;">
+
+1
+
+</td>
+
 <td style="text-align:left;">
 
-TRUE
+b
 
 </td>
 
@@ -335,79 +209,7 @@ single\_entry
 
 <td style="text-align:left;">
 
-2b
-
-</td>
-
-<td style="text-align:right;">
-
-2
-
-</td>
-
-<td style="text-align:left;">
-
-b
-
-</td>
-
-<td style="text-align:right;">
-
-\-197541
-
-</td>
-
-<td style="text-align:right;">
-
-1
-
-</td>
-
-<td style="text-align:left;">
-
-b
-
-</td>
-
-<td style="text-align:right;">
-
-0.50
-
-</td>
-
-<td style="text-align:left;">
-
-2011-09-06
-
-</td>
-
-<td style="text-align:right;">
-
-1
-
-</td>
-
-<td style="text-align:left;">
-
 closed
-
-</td>
-
-<td style="text-align:right;">
-
-NA
-
-</td>
-
-<td style="text-align:right;">
-
-1
-
-</td>
-
-<td style="text-align:right;">
-
-5557
 
 </td>
 
@@ -427,9 +229,15 @@ NA
 
 </td>
 
+<td style="text-align:right;">
+
+1
+
+</td>
+
 <td style="text-align:left;">
 
-TRUE
+b
 
 </td>
 
@@ -453,79 +261,7 @@ single\_entry
 
 <td style="text-align:left;">
 
-4b12
-
-</td>
-
-<td style="text-align:right;">
-
-4
-
-</td>
-
-<td style="text-align:left;">
-
-b
-
-</td>
-
-<td style="text-align:right;">
-
-\-195380
-
-</td>
-
-<td style="text-align:right;">
-
-0
-
-</td>
-
-<td style="text-align:left;">
-
-a
-
-</td>
-
-<td style="text-align:right;">
-
-0.25
-
-</td>
-
-<td style="text-align:left;">
-
-2011-09-06
-
-</td>
-
-<td style="text-align:right;">
-
-2
-
-</td>
-
-<td style="text-align:left;">
-
 closed
-
-</td>
-
-<td style="text-align:right;">
-
-NA
-
-</td>
-
-<td style="text-align:right;">
-
-1
-
-</td>
-
-<td style="text-align:right;">
-
-8377
 
 </td>
 
@@ -545,9 +281,15 @@ NA
 
 </td>
 
+<td style="text-align:right;">
+
+1
+
+</td>
+
 <td style="text-align:left;">
 
-TRUE
+b
 
 </td>
 
@@ -571,79 +313,7 @@ single\_entry
 
 <td style="text-align:left;">
 
-4b12
-
-</td>
-
-<td style="text-align:right;">
-
-4
-
-</td>
-
-<td style="text-align:left;">
-
-b
-
-</td>
-
-<td style="text-align:right;">
-
-\-195380
-
-</td>
-
-<td style="text-align:right;">
-
-1
-
-</td>
-
-<td style="text-align:left;">
-
-b
-
-</td>
-
-<td style="text-align:right;">
-
-0.75
-
-</td>
-
-<td style="text-align:left;">
-
-2011-09-06
-
-</td>
-
-<td style="text-align:right;">
-
-2
-
-</td>
-
-<td style="text-align:left;">
-
 closed
-
-</td>
-
-<td style="text-align:right;">
-
-NA
-
-</td>
-
-<td style="text-align:right;">
-
-1
-
-</td>
-
-<td style="text-align:right;">
-
-8378
 
 </td>
 
@@ -663,9 +333,15 @@ NA
 
 </td>
 
+<td style="text-align:right;">
+
+1
+
+</td>
+
 <td style="text-align:left;">
 
-TRUE
+b
 
 </td>
 
@@ -689,79 +365,7 @@ single\_entry
 
 <td style="text-align:left;">
 
-2a
-
-</td>
-
-<td style="text-align:right;">
-
-2
-
-</td>
-
-<td style="text-align:left;">
-
-a
-
-</td>
-
-<td style="text-align:right;">
-
-\-197306
-
-</td>
-
-<td style="text-align:right;">
-
-1
-
-</td>
-
-<td style="text-align:left;">
-
-a
-
-</td>
-
-<td style="text-align:right;">
-
-0.60
-
-</td>
-
-<td style="text-align:left;">
-
-2011-09-06
-
-</td>
-
-<td style="text-align:right;">
-
-1
-
-</td>
-
-<td style="text-align:left;">
-
 closed
-
-</td>
-
-<td style="text-align:right;">
-
-NA
-
-</td>
-
-<td style="text-align:right;">
-
-1
-
-</td>
-
-<td style="text-align:right;">
-
-5858
 
 </td>
 
@@ -781,9 +385,15 @@ NA
 
 </td>
 
+<td style="text-align:right;">
+
+1
+
+</td>
+
 <td style="text-align:left;">
 
-TRUE
+b
 
 </td>
 
@@ -807,79 +417,7 @@ single\_entry
 
 <td style="text-align:left;">
 
-2a
-
-</td>
-
-<td style="text-align:right;">
-
-2
-
-</td>
-
-<td style="text-align:left;">
-
-a
-
-</td>
-
-<td style="text-align:right;">
-
-\-197306
-
-</td>
-
-<td style="text-align:right;">
-
-1
-
-</td>
-
-<td style="text-align:left;">
-
-b
-
-</td>
-
-<td style="text-align:right;">
-
-0.40
-
-</td>
-
-<td style="text-align:left;">
-
-2011-09-06
-
-</td>
-
-<td style="text-align:right;">
-
-1
-
-</td>
-
-<td style="text-align:left;">
-
 closed
-
-</td>
-
-<td style="text-align:right;">
-
-NA
-
-</td>
-
-<td style="text-align:right;">
-
-1
-
-</td>
-
-<td style="text-align:right;">
-
-5859
 
 </td>
 
@@ -894,8 +432,8 @@ But that code just makes it pretty. To access it in R, after loading
 
 ``` r
  
-forecasts 
-#> # A tibble: 935,419 x 20
+forecasts
+#> # A tibble: 935,419 x 21
 #>    ifp_id user_id min_eq_max time_terminal timestamp           q_text
 #>    <chr>    <dbl> <lgl>      <chr>         <dttm>              <chr> 
 #>  1 1001-0       3 TRUE       single_entry  2011-09-06 05:46:12 Will …
@@ -908,11 +446,12 @@ forecasts
 #>  8 1001-0      23 TRUE       single_entry  2011-09-12 04:27:10 Will …
 #>  9 1001-0      25 TRUE       single_entry  2011-09-07 08:22:12 Will …
 #> 10 1001-0      25 TRUE       single_entry  2011-09-07 08:22:12 Will …
-#> # … with 935,409 more rows, and 14 more variables: q_type <dbl>,
-#> #   ctt <chr>, cond <dbl>, training <chr>, forecast_id <dbl>,
-#> #   fcast_type <dbl>, answer_option <chr>, value <dbl>, fcast_date <date>,
-#> #   expertise <dbl>, q_status <chr>, viewtime <dbl>, year <dbl>,
-#> #   raw_dat_obs <int>
+#> # … with 935,409 more rows, and 15 more variables: q_type <dbl>,
+#> #   outcome <chr>, ctt <chr>, cond <dbl>, training <chr>,
+#> #   forecast_id <dbl>, fcast_type <dbl>, answer_option <chr>, value <dbl>,
+#> #   fcast_date <date>, expertise <dbl>, q_status <chr>, viewtime <dbl>,
+#> #   year <dbl>, raw_dat_obs <int>
+
 
 # you can write this table out of R to a .csv with 
 # readr::write_csv(forecasts, "<path/file>.csv") 
