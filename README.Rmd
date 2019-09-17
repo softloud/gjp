@@ -56,7 +56,7 @@ library(tidyverse)
 # install() and library() gjp
 forecasts %>% 
   head() %>% 
-  select(ifp_id, user_id, year, outcome, time_terminal, timestamp, q_type,  q_status) %>% # remove question text for formatting
+  select(ifp_id, user_id, year, outcome, options, time_terminal, timestamp, q_type,  q_status) %>% # remove question text for formatting
   kableExtra::kable()
 
 ```

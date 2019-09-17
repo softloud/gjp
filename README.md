@@ -47,7 +47,7 @@ library(tidyverse)
 # install() and library() gjp
 forecasts %>% 
   head() %>% 
-  select(ifp_id, user_id, year, outcome, time_terminal, timestamp, q_type,  q_status) %>% # remove question text for formatting
+  select(ifp_id, user_id, year, outcome, options, time_terminal, timestamp, q_type,  q_status) %>% # remove question text for formatting
   kableExtra::kable()
 ```
 
@@ -78,6 +78,12 @@ year
 <th style="text-align:left;">
 
 outcome
+
+</th>
+
+<th style="text-align:left;">
+
+options
 
 </th>
 
@@ -139,293 +145,168 @@ b
 
 <td style="text-align:left;">
 
-single\_entry
-
-</td>
-
-<td style="text-align:left;">
-
-2011-09-06 05:46:12
-
-</td>
-
-<td style="text-align:right;">
-
-0
-
-</td>
-
-<td style="text-align:left;">
-
-closed
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-1001-0
-
-</td>
-
-<td style="text-align:right;">
-
-3
-
-</td>
-
-<td style="text-align:right;">
-
-1
-
-</td>
-
-<td style="text-align:left;">
-
-b
-
-</td>
-
-<td style="text-align:left;">
-
-single\_entry
-
-</td>
-
-<td style="text-align:left;">
-
-2011-09-06 05:46:12
-
-</td>
-
-<td style="text-align:right;">
-
-0
-
-</td>
-
-<td style="text-align:left;">
-
-closed
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-1001-0
-
-</td>
-
-<td style="text-align:right;">
-
-15
-
-</td>
-
-<td style="text-align:right;">
-
-1
-
-</td>
-
-<td style="text-align:left;">
-
-b
-
-</td>
-
-<td style="text-align:left;">
-
-single\_entry
-
-</td>
-
-<td style="text-align:left;">
-
-2011-09-06 19:22:39
-
-</td>
-
-<td style="text-align:right;">
-
-0
-
-</td>
-
-<td style="text-align:left;">
-
-closed
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-1001-0
-
-</td>
-
-<td style="text-align:right;">
-
-15
-
-</td>
-
-<td style="text-align:right;">
-
-1
-
-</td>
-
-<td style="text-align:left;">
-
-b
-
-</td>
-
-<td style="text-align:left;">
-
-single\_entry
-
-</td>
-
-<td style="text-align:left;">
-
-2011-09-06 19:22:39
-
-</td>
-
-<td style="text-align:right;">
-
-0
-
-</td>
-
-<td style="text-align:left;">
-
-closed
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-1001-0
-
-</td>
-
-<td style="text-align:right;">
-
-19
-
-</td>
-
-<td style="text-align:right;">
-
-1
-
-</td>
-
-<td style="text-align:left;">
-
-b
-
-</td>
-
-<td style="text-align:left;">
-
-single\_entry
-
-</td>
-
-<td style="text-align:left;">
-
-2011-09-06 09:20:49
-
-</td>
-
-<td style="text-align:right;">
-
-0
-
-</td>
-
-<td style="text-align:left;">
-
-closed
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-1001-0
-
-</td>
-
-<td style="text-align:right;">
-
-19
-
-</td>
-
-<td style="text-align:right;">
-
-1
-
-</td>
-
-<td style="text-align:left;">
-
-b
-
-</td>
-
-<td style="text-align:left;">
-
-single\_entry
-
-</td>
-
-<td style="text-align:left;">
-
-2011-09-06 09:20:49
-
-</td>
-
-<td style="text-align:right;">
-
-0
-
-</td>
-
-<td style="text-align:left;">
-
-closed
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
+1)  Yes, (b) No
+    </td>
+    <td style="text-align:left;">
+    single\_entry
+    </td>
+    <td style="text-align:left;">
+    2011-09-06 05:46:12
+    </td>
+    <td style="text-align:right;">
+    0
+    </td>
+    <td style="text-align:left;">
+    closed
+    </td>
+    </tr>
+    <tr>
+    <td style="text-align:left;">
+    1001-0
+    </td>
+    <td style="text-align:right;">
+    3
+    </td>
+    <td style="text-align:right;">
+    1
+    </td>
+    <td style="text-align:left;">
+    b
+    </td>
+    <td style="text-align:left;">
+    1)  Yes, (b) No
+        </td>
+        <td style="text-align:left;">
+        single\_entry
+        </td>
+        <td style="text-align:left;">
+        2011-09-06 05:46:12
+        </td>
+        <td style="text-align:right;">
+        0
+        </td>
+        <td style="text-align:left;">
+        closed
+        </td>
+        </tr>
+        <tr>
+        <td style="text-align:left;">
+        1001-0
+        </td>
+        <td style="text-align:right;">
+        15
+        </td>
+        <td style="text-align:right;">
+        1
+        </td>
+        <td style="text-align:left;">
+        b
+        </td>
+        <td style="text-align:left;">
+        1)  Yes, (b) No
+            </td>
+            <td style="text-align:left;">
+            single\_entry
+            </td>
+            <td style="text-align:left;">
+            2011-09-06 19:22:39
+            </td>
+            <td style="text-align:right;">
+            0
+            </td>
+            <td style="text-align:left;">
+            closed
+            </td>
+            </tr>
+            <tr>
+            <td style="text-align:left;">
+            1001-0
+            </td>
+            <td style="text-align:right;">
+            15
+            </td>
+            <td style="text-align:right;">
+            1
+            </td>
+            <td style="text-align:left;">
+            b
+            </td>
+            <td style="text-align:left;">
+            1)  Yes, (b) No
+                </td>
+                <td style="text-align:left;">
+                single\_entry
+                </td>
+                <td style="text-align:left;">
+                2011-09-06 19:22:39
+                </td>
+                <td style="text-align:right;">
+                0
+                </td>
+                <td style="text-align:left;">
+                closed
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align:left;">
+                1001-0
+                </td>
+                <td style="text-align:right;">
+                19
+                </td>
+                <td style="text-align:right;">
+                1
+                </td>
+                <td style="text-align:left;">
+                b
+                </td>
+                <td style="text-align:left;">
+                1)  Yes, (b) No
+                    </td>
+                    <td style="text-align:left;">
+                    single\_entry
+                    </td>
+                    <td style="text-align:left;">
+                    2011-09-06 09:20:49
+                    </td>
+                    <td style="text-align:right;">
+                    0
+                    </td>
+                    <td style="text-align:left;">
+                    closed
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="text-align:left;">
+                    1001-0
+                    </td>
+                    <td style="text-align:right;">
+                    19
+                    </td>
+                    <td style="text-align:right;">
+                    1
+                    </td>
+                    <td style="text-align:left;">
+                    b
+                    </td>
+                    <td style="text-align:left;">
+                    1)  Yes, (b) No
+                        </td>
+                        <td style="text-align:left;">
+                        single\_entry
+                        </td>
+                        <td style="text-align:left;">
+                        2011-09-06 09:20:49
+                        </td>
+                        <td style="text-align:right;">
+                        0
+                        </td>
+                        <td style="text-align:left;">
+                        closed
+                        </td>
+                        </tr>
+                        </tbody>
+                        </table>
 
 But that code just makes it pretty. To access it in R, after loading
 `gjp::` with `library(gjp)`:
@@ -433,7 +314,7 @@ But that code just makes it pretty. To access it in R, after loading
 ``` r
  
 forecasts
-#> # A tibble: 935,419 x 21
+#> # A tibble: 935,419 x 22
 #>    ifp_id user_id min_eq_max time_terminal timestamp           q_text
 #>    <chr>    <dbl> <lgl>      <chr>         <dttm>              <chr> 
 #>  1 1001-0       3 TRUE       single_entry  2011-09-06 05:46:12 Will …
@@ -446,8 +327,8 @@ forecasts
 #>  8 1001-0      23 TRUE       single_entry  2011-09-12 04:27:10 Will …
 #>  9 1001-0      25 TRUE       single_entry  2011-09-07 08:22:12 Will …
 #> 10 1001-0      25 TRUE       single_entry  2011-09-07 08:22:12 Will …
-#> # … with 935,409 more rows, and 15 more variables: q_type <dbl>,
-#> #   outcome <chr>, ctt <chr>, cond <dbl>, training <chr>,
+#> # … with 935,409 more rows, and 16 more variables: q_type <dbl>,
+#> #   outcome <chr>, options <chr>, ctt <chr>, cond <dbl>, training <chr>,
 #> #   forecast_id <dbl>, fcast_type <dbl>, answer_option <chr>, value <dbl>,
 #> #   fcast_date <date>, expertise <dbl>, q_status <chr>, viewtime <dbl>,
 #> #   year <dbl>, raw_dat_obs <int>
