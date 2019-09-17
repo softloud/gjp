@@ -43,6 +43,9 @@ The `forecasts` dataset is combines the 4 year's csvs of survey_fcasts data and 
 - binary outcomes (by combining with ifps data set)
 - "closed" status questions
 - if multiple entries, first and last (see `time_terminal` for type of entry)
+- these have been filtered to `options` that contain `Yes` or `No`
+- `opts_n` contains the number of options. 2 indicates only yes and no, whereas > 2 indicates conditional
+- `opts_conditional` indicates if there are more than two options
 
 Documentation coming, but here's the dataset in the meantime. 
 
@@ -56,7 +59,7 @@ library(tidyverse)
 # install() and library() gjp
 forecasts %>% 
   head() %>% 
-  select(ifp_id, user_id, year, outcome, options, time_terminal, timestamp, q_type,  q_status) %>% # remove question text for formatting
+  select(ifp_id, user_id, year, outcome, options, n_opts, opts_conditional, options_yn, time_terminal, timestamp, q_type,  q_status) %>% # remove question text for formatting
   kableExtra::kable()
 
 ```
@@ -73,6 +76,8 @@ forecasts
 # where you replace <path/file> with your desired file name and location.
 
 ```
+
+
 
 
 ## these data are documented

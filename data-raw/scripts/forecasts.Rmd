@@ -52,7 +52,7 @@ all_forecasts <- raw_dat %>%
 # we need to get q_type from the ifps csv.
 forecasts_binary <- 
     questions %>% 
-    select(ifp_id, q_text, q_type, outcome, options) %>% # here's where we can add stuff from ifps.csv
+    select(ifp_id, q_text, q_type, outcome, options, n_opts) %>% # here's where we can add stuff from ifps.csv
     right_join(all_forecasts) %>% 
     dplyr::filter(q_type == 0) # binary questions only
 
@@ -104,7 +104,18 @@ forecasts_otp <-
     left_join(forecasts_binary, by = c("ifp_id", "user_id", "timestamp")) %>% 
     ungroup()
 
-forecasts <- bind_rows(forecasts_otp, forecasts_mtp)
+forecasts_no_opt_flag <- bind_rows(forecasts_otp, forecasts_mtp)
+
+```
+
+```{r}
+# create flag for conditional or not conditional questions 
+forecasts <- forecasts_no_opt_flag %>%
+    # select(outcome, options) %>% 
+    mutate(options_yn = str_detect(options, "(Yes)") &
+               str_detect(options, ("(No)"))) %>% 
+    dplyr::filter(options_yn == TRUE) %>% 
+    mutate(opts_conditional = as.numeric(n_opts > 2))
 
 ```
 
@@ -112,8 +123,6 @@ forecasts <- bind_rows(forecasts_otp, forecasts_mtp)
 
 ```{r eval=FALSE}
 usethis::use_data(forecasts, overwrite = TRUE)
-
-
 
 ```
 

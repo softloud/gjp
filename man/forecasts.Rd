@@ -4,11 +4,14 @@
 \name{forecasts}
 \alias{forecasts}
 \title{Forecasts data}
-\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 935419 rows and 22 columns.}
+\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 817497 rows and 25 columns.}
 \usage{
 forecasts
 }
 \description{
+To do!
+}
+\details{
 See readme for deets and the codefile in raw-data/scripts/
 }
 \keyword{datasets}
