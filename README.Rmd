@@ -44,8 +44,8 @@ The `forecasts` dataset is combines the 4 year's csvs of survey_fcasts data and 
 - "closed" status questions
 - if multiple entries, first and last (see `time_terminal` for type of entry)
 - these have been filtered to `options` that contain `Yes` or `No`
-- `opts_n` contains the number of options. 
-- `q_conditional` indicates 1 if the question text `q_text` field begins with `If` and 0 if it begins with something else   
+- `opts_n` contains the number of options, this dataset has been filtered for 2 options only. 
+- `q_conditional` indicates 1 if the question text `options` field begins with `If` and 0 if it begins with something else   
 
 Documentation coming, but here's the dataset in the meantime. 
 
@@ -61,6 +61,7 @@ forecasts %>%
   head() %>% 
   select(ifp_id, user_id, year, outcome, options, n_opts, q_conditional, options_yn, time_terminal, timestamp, q_type,  q_status) %>% # remove question text for formatting
   kableExtra::kable()
+
 
 ```
 
@@ -79,13 +80,24 @@ But that code just makes it pretty. To access it in R, after loading `gjp::` wit
  
 forecasts
 
-
-# you can write this table out of R to a .csv with 
-# readr::write_csv(forecasts, "<path/file>.csv") 
-# where you replace <path/file> with your desired file name and location.
+# to see the if questions, we can filter by q_conditional
+forecasts %>% 
+  dplyr::filter(q_conditional == 1) %>% 
+  head() %>% 
+  select(q_text, options)
 
 ```
 
+you can write this table out of R to a .csv with 
+
+```{r eval=FALSE}
+
+# You may need to install.packages("readr")
+readr::write_csv(forecasts, "<path/file>.csv") 
+ 
+```
+
+where you replace `<path/file>` with your desired file name and location.
 
 
 
@@ -124,6 +136,6 @@ questions %>% dim()
 
 ```
 
-## upcoming
+## after Germany
 
-Those demographics for Bonnie. 
+Proper documentation and those demographics for Bonnie. 

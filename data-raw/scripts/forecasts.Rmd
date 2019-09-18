@@ -114,27 +114,17 @@ forecasts <- forecasts_no_opt_flag %>%
     # select(outcome, options) %>% 
     mutate(options_yn = str_detect(options, "(Yes)") &
                str_detect(options, ("(No)"))) %>% 
-    dplyr::filter(options_yn == TRUE) %>% 
-    mutate(q_conditional = # conditional question indicator
-               as.numeric(str_detect(options, "^(If)"))) 
+    dplyr::filter( # final filters
+        # options_yn == TRUE
+        n_opts == 2
+        ) %>% 
+    mutate(q_conditional = # conditional question indicator, begins with if
+               as.numeric(str_detect(options, "^(If)")))  
+
+forecasts$q_conditional %>% table()
 
 ```
 
-
-
-
-```{r}
-
-library(RVerbalExpressions)
-rx_start_of_line() %>% 
-    rx_find("If")
-
-forecasts %>% 
-    mutate(q_if = str_detect(options, "^(If)")) %>% 
-    count(q_if)
-
-
-```
 
 
 

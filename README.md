@@ -35,8 +35,9 @@ data and then filters it:
   - if multiple entries, first and last (see `time_terminal` for type of
     entry)
   - these have been filtered to `options` that contain `Yes` or `No`
-  - `opts_n` contains the number of options.
-  - `q_conditional` indicates 1 if the question text `q_text` field
+  - `opts_n` contains the number of options, this dataset has been
+    filtered for 2 options only.
+  - `q_conditional` indicates 1 if the question text `options` field
     begins with `If` and 0 if it begins with something else
 
 Documentation coming, but here’s the dataset in the meantime.
@@ -482,11 +483,33 @@ forecasts
 #> #   q_status <chr>, viewtime <dbl>, year <dbl>, raw_dat_obs <int>,
 #> #   options_yn <lgl>, q_conditional <dbl>
 
-
-# you can write this table out of R to a .csv with 
-# readr::write_csv(forecasts, "<path/file>.csv") 
-# where you replace <path/file> with your desired file name and location.
+# to see the if questions, we can filter by q_conditional
+forecasts %>% 
+  dplyr::filter(q_conditional == 1) %>% 
+  head() %>% 
+  select(q_text, options)
+#> # A tibble: 6 x 2
+#>   q_text                              options                              
+#>   <chr>                               <chr>                                
+#> 1 Will Syria use chemical or biologi… If there is not a substantial lethal…
+#> 2 Will Syria use chemical or biologi… If there is not a substantial lethal…
+#> 3 Will Syria use chemical or biologi… If there is not a substantial lethal…
+#> 4 Will Syria use chemical or biologi… If there is not a substantial lethal…
+#> 5 Will Syria use chemical or biologi… If there is not a substantial lethal…
+#> 6 Will Syria use chemical or biologi… If there is not a substantial lethal…
 ```
+
+you can write this table out of R to a .csv with
+
+``` r
+
+# You may need to install.packages("readr")
+readr::write_csv(forecasts, "<path/file>.csv") 
+ 
+```
+
+where you replace `<path/file>` with your desired file name and
+location.
 
 ## these data are documented
 
@@ -550,6 +573,6 @@ questions %>% dim()
 #> [1] 617  14
 ```
 
-## upcoming
+## after Germany
 
-Those demographics for Bonnie.
+Proper documentation and those demographics for Bonnie.
