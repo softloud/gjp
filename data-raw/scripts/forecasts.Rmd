@@ -122,6 +122,7 @@ forecasts <- forecasts_no_opt_flag %>%
                as.numeric(str_detect(options, "^(If)")))  
 
 forecasts$q_conditional %>% table()
+forecasts$n_opts %>% summary()
 
 ```
 

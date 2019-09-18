@@ -86,6 +86,11 @@ forecasts %>%
   head() %>% 
   select(q_text, options)
 
+# now let's make sure we've got only two options
+forecasts %>% 
+  pluck("n_opts") %>% 
+  summary()
+
 ```
 
 you can write this table out of R to a .csv with 
@@ -98,7 +103,6 @@ readr::write_csv(forecasts, "<path/file>.csv")
 ```
 
 where you replace `<path/file>` with your desired file name and location.
-
 
 
 ## these data are documented
