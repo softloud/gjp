@@ -44,8 +44,8 @@ The `forecasts` dataset is combines the 4 year's csvs of survey_fcasts data and 
 - "closed" status questions
 - if multiple entries, first and last (see `time_terminal` for type of entry)
 - these have been filtered to `options` that contain `Yes` or `No`
-- `opts_n` contains the number of options. 2 indicates only yes and no, whereas > 2 indicates conditional
-- `opts_conditional` indicates if there are more than two options
+- `opts_n` contains the number of options. 
+- `q_conditional` indicates 1 if the question text `q_text` field begins with `If` and 0 if it begins with something else   
 
 Documentation coming, but here's the dataset in the meantime. 
 
@@ -59,10 +59,19 @@ library(tidyverse)
 # install() and library() gjp
 forecasts %>% 
   head() %>% 
-  select(ifp_id, user_id, year, outcome, options, n_opts, opts_conditional, options_yn, time_terminal, timestamp, q_type,  q_status) %>% # remove question text for formatting
+  select(ifp_id, user_id, year, outcome, options, n_opts, q_conditional, options_yn, time_terminal, timestamp, q_type,  q_status) %>% # remove question text for formatting
   kableExtra::kable()
 
 ```
+
+```{r}
+# an overview of what we've got
+forecasts %>% 
+  skimr::skim()
+
+
+```
+
 
 But that code just makes it pretty. To access it in R, after loading `gjp::` with `library(gjp)`:
 

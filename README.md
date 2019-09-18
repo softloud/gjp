@@ -35,9 +35,9 @@ data and then filters it:
   - if multiple entries, first and last (see `time_terminal` for type of
     entry)
   - these have been filtered to `options` that contain `Yes` or `No`
-  - `opts_n` contains the number of options. 2 indicates only yes and
-    no, whereas \> 2 indicates conditional
-  - `opts_conditional` indicates if there are more than two options
+  - `opts_n` contains the number of options.
+  - `q_conditional` indicates 1 if the question text `q_text` field
+    begins with `If` and 0 if it begins with something else
 
 Documentation coming, but here’s the dataset in the meantime.
 
@@ -51,7 +51,7 @@ library(tidyverse)
 # install() and library() gjp
 forecasts %>% 
   head() %>% 
-  select(ifp_id, user_id, year, outcome, options, n_opts, opts_conditional, options_yn, time_terminal, timestamp, q_type,  q_status) %>% # remove question text for formatting
+  select(ifp_id, user_id, year, outcome, options, n_opts, q_conditional, options_yn, time_terminal, timestamp, q_type,  q_status) %>% # remove question text for formatting
   kableExtra::kable()
 ```
 
@@ -99,7 +99,7 @@ n\_opts
 
 <th style="text-align:right;">
 
-opts\_conditional
+q\_conditional
 
 </th>
 
@@ -384,13 +384,85 @@ b
                         </tbody>
                         </table>
 
+<!-- end list -->
+
+``` r
+# an overview of what we've got
+forecasts %>% 
+  skimr::skim()
+#> Skim summary statistics
+#>  n obs: 941385 
+#>  n variables: 25 
+#> 
+#> ── Variable type:character ───────────────────────────────────────────────────────────────
+#>       variable missing complete      n min max empty n_unique
+#>  answer_option       0   941385 941385   1   1     0        3
+#>            ctt       0   941385 941385   2   4     0      273
+#>         ifp_id       0   941385 941385   6   6     0      386
+#>        options       0   941385 941385  15 195     0       84
+#>        outcome       0   941385 941385   1   1     0        3
+#>       q_status       0   941385 941385   6   6     0        1
+#>         q_text       0   941385 941385  50 290     0      384
+#>  time_terminal       0   941385 941385  12  13     0        3
+#>       training       0   941385 941385   1   1     0       13
+#> 
+#> ── Variable type:Date ────────────────────────────────────────────────────────────────────
+#>    variable missing complete      n        min        max     median
+#>  fcast_date       0   941385 941385 2011-08-31 2015-06-09 2014-02-21
+#>  n_unique
+#>      1188
+#> 
+#> ── Variable type:integer ─────────────────────────────────────────────────────────────────
+#>     variable missing complete      n       mean        sd p0    p25
+#>  raw_dat_obs       0   941385 941385 1190681.37 886868.04  1 323577
+#>      p50     p75    p100     hist
+#>  1075698 2132646 2784043 ▇▅▃▃▂▂▅▃
+#> 
+#> ── Variable type:logical ─────────────────────────────────────────────────────────────────
+#>    variable missing complete      n mean                           count
+#>  min_eq_max       0   941385 941385  0.4 FAL: 560896, TRU: 380489, NA: 0
+#>  options_yn       0   941385 941385  1                TRU: 941385, NA: 0
+#> 
+#> ── Variable type:numeric ─────────────────────────────────────────────────────────────────
+#>       variable missing complete      n     mean        sd     p0     p25
+#>           cond       0   941385 941385     2.36      1.53      1    1   
+#>      expertise  423793   517592 941385     2.38      1.07      0    2   
+#>     fcast_type       0   941385 941385     0.72      0.72      0    0   
+#>    forecast_id       0   941385 941385 7e+05    837062.22 -2e+05 7631   
+#>         n_opts       0   941385 941385     2.02      0.14      2    2   
+#>  q_conditional       0   941385 941385     0.13      0.34      0    0   
+#>         q_type       0   941385 941385     0.24      0.65      0    0   
+#>        user_id      34   941351 941385 40021.72  55084.45      3 3333   
+#>          value       0   941385 941385     0.5       0.35      0    0.15
+#>       viewtime  382842   558543 941385   370.75   9044.12      0   15   
+#>           year       0   941385 941385     2.81      1.24      1    2   
+#>       p50       p75    p100     hist
+#>       1        4          5 ▇▂▁▁▁▅▁▁
+#>       2        3          5 ▁▆▁▇▇▁▂▁
+#>       1        1          4 ▆▇▁▁▁▁▁▁
+#>  432210   908276    2259701 ▇▃▅▂▁▁▁▆
+#>       2        2          3 ▇▁▁▁▁▁▁▁
+#>       0        0          1 ▇▁▁▁▁▁▁▁
+#>       0        0          4 ▇▁▁▁▁▁▁▁
+#>    6376   124269     182001 ▇▁▁▁▁▂▁▁
+#>       0.5      0.85       1 ▇▅▂▃▂▃▃▇
+#>      48      181    2118638 ▇▁▁▁▁▁▁▁
+#>       3        4          4 ▅▁▃▁▁▂▁▇
+#> 
+#> ── Variable type:POSIXct ─────────────────────────────────────────────────────────────────
+#>   variable missing complete      n        min        max     median
+#>  timestamp       0   941385 941385 2011-08-31 2015-06-09 2014-02-21
+#>  n_unique
+#>    454578
+```
+
 But that code just makes it pretty. To access it in R, after loading
 `gjp::` with `library(gjp)`:
 
 ``` r
  
 forecasts
-#> # A tibble: 817,497 x 25
+#> # A tibble: 941,385 x 25
 #>    ifp_id user_id min_eq_max time_terminal timestamp           q_text
 #>    <chr>    <dbl> <lgl>      <chr>         <dttm>              <chr> 
 #>  1 1001-0       3 TRUE       single_entry  2011-09-06 05:46:12 Will …
@@ -403,12 +475,12 @@ forecasts
 #>  8 1001-0      23 TRUE       single_entry  2011-09-12 04:27:10 Will …
 #>  9 1001-0      25 TRUE       single_entry  2011-09-07 08:22:12 Will …
 #> 10 1001-0      25 TRUE       single_entry  2011-09-07 08:22:12 Will …
-#> # … with 817,487 more rows, and 19 more variables: q_type <dbl>,
+#> # … with 941,375 more rows, and 19 more variables: q_type <dbl>,
 #> #   outcome <chr>, options <chr>, n_opts <dbl>, ctt <chr>, cond <dbl>,
 #> #   training <chr>, forecast_id <dbl>, fcast_type <dbl>,
 #> #   answer_option <chr>, value <dbl>, fcast_date <date>, expertise <dbl>,
 #> #   q_status <chr>, viewtime <dbl>, year <dbl>, raw_dat_obs <int>,
-#> #   options_yn <lgl>, opts_conditional <dbl>
+#> #   options_yn <lgl>, q_conditional <dbl>
 
 
 # you can write this table out of R to a .csv with 

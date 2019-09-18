@@ -53,8 +53,8 @@ all_forecasts <- raw_dat %>%
 forecasts_binary <- 
     questions %>% 
     select(ifp_id, q_text, q_type, outcome, options, n_opts) %>% # here's where we can add stuff from ifps.csv
-    right_join(all_forecasts) %>% 
-    dplyr::filter(q_type == 0) # binary questions only
+    right_join(all_forecasts) # %>% 
+    # dplyr::filter(q_type == 0) # binary questions only
 
     
 
@@ -115,7 +115,24 @@ forecasts <- forecasts_no_opt_flag %>%
     mutate(options_yn = str_detect(options, "(Yes)") &
                str_detect(options, ("(No)"))) %>% 
     dplyr::filter(options_yn == TRUE) %>% 
-    mutate(opts_conditional = as.numeric(n_opts > 2))
+    mutate(q_conditional = # conditional question indicator
+               as.numeric(str_detect(options, "^(If)"))) 
+
+```
+
+
+
+
+```{r}
+
+library(RVerbalExpressions)
+rx_start_of_line() %>% 
+    rx_find("If")
+
+forecasts %>% 
+    mutate(q_if = str_detect(options, "^(If)")) %>% 
+    count(q_if)
+
 
 ```
 
