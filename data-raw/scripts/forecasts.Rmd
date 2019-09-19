@@ -62,7 +62,7 @@ forecasts_binary <-
 ```
 
 
-```{r}
+```{r eval=FALSE}
 
 # get first and last timepoints for each user & question
 forecasts_all_times <- 
@@ -80,7 +80,7 @@ forecasts_all_times <-
 ```
 
 
-```{r}
+```{r eval=FALSE}
  
 # now to get the forecasts with more than one timepoint
 
@@ -110,19 +110,23 @@ forecasts_no_opt_flag <- bind_rows(forecasts_otp, forecasts_mtp)
 
 ```{r}
 # create flag for conditional or not conditional questions 
-forecasts <- forecasts_no_opt_flag %>%
+forecasts <- forecasts_binary %>% 
+    dplyr::filter(fcast_type == 0 | fcast_type == 4) %>% 
     # select(outcome, options) %>% 
-    mutate(options_yn = str_detect(options, "(Yes)") &
-               str_detect(options, ("(No)"))) %>% 
+    mutate(options_yn = str_detect(options, "Yes") &
+               str_detect(options, ("No"))) %>% 
     dplyr::filter( # final filters
         # options_yn == TRUE
         n_opts == 2
         ) %>% 
     mutate(q_conditional = # conditional question indicator, begins with if
-               as.numeric(str_detect(options, "^(If)")))  
+               as.numeric(str_detect(options, "If")))  
 
 forecasts$q_conditional %>% table()
 forecasts$n_opts %>% summary()
+forecasts$fcast_type %>% table()
+
+forecasts %>% pluck("fcast_type") %>% table()
 
 ```
 

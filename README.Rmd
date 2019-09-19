@@ -42,7 +42,7 @@ The `forecasts` dataset is combines the 4 year's csvs of survey_fcasts data and 
 
 - binary outcomes (by combining with ifps data set)
 - "closed" status questions
-- if multiple entries, first and last (see `time_terminal` for type of entry)
+<!-- - if multiple entries, first and last (see `time_terminal` for type of entry) -->
 - these have been filtered to `options` that contain `Yes` or `No`
 - `opts_n` contains the number of options, this dataset has been filtered for 2 options only. 
 - `q_conditional` indicates 1 if the question text `options` field begins with `If` and 0 if it begins with something else   
@@ -59,7 +59,7 @@ library(tidyverse)
 # install() and library() gjp
 forecasts %>% 
   head() %>% 
-  select(ifp_id, user_id, year, outcome, options, n_opts, q_conditional, options_yn, time_terminal, timestamp, q_type,  q_status) %>% # remove question text for formatting
+  select(ifp_id, user_id, year, outcome, options, n_opts, q_conditional, options_yn, timestamp, q_type,  q_status) %>% # remove question text for formatting
   kableExtra::kable()
 
 
@@ -90,6 +90,11 @@ forecasts %>%
 forecasts %>% 
   pluck("n_opts") %>% 
   summary()
+
+# now to check we've got the correct timepoints
+forecasts %>% 
+  pluck("fcast_type") %>% 
+  table() # should only have 0 and 4
 
 ```
 

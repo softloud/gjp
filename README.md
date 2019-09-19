@@ -52,7 +52,7 @@ library(tidyverse)
 # install() and library() gjp
 forecasts %>% 
   head() %>% 
-  select(ifp_id, user_id, year, outcome, options, n_opts, q_conditional, options_yn, time_terminal, timestamp, q_type,  q_status) %>% # remove question text for formatting
+  select(ifp_id, user_id, year, outcome, options, n_opts, q_conditional, options_yn, timestamp, q_type,  q_status) %>% # remove question text for formatting
   kableExtra::kable()
 ```
 
@@ -112,12 +112,6 @@ options\_yn
 
 <th style="text-align:left;">
 
-time\_terminal
-
-</th>
-
-<th style="text-align:left;">
-
 timestamp
 
 </th>
@@ -144,13 +138,13 @@ q\_status
 
 <td style="text-align:left;">
 
-1001-0
+1004-0
 
 </td>
 
 <td style="text-align:right;">
 
-3
+600
 
 </td>
 
@@ -180,10 +174,7 @@ b
     TRUE
     </td>
     <td style="text-align:left;">
-    single\_entry
-    </td>
-    <td style="text-align:left;">
-    2011-09-06 05:46:12
+    2011-08-31 16:17:18
     </td>
     <td style="text-align:right;">
     0
@@ -194,10 +185,10 @@ b
     </tr>
     <tr>
     <td style="text-align:left;">
-    1001-0
+    1004-0
     </td>
     <td style="text-align:right;">
-    3
+    600
     </td>
     <td style="text-align:right;">
     1
@@ -218,10 +209,7 @@ b
         TRUE
         </td>
         <td style="text-align:left;">
-        single\_entry
-        </td>
-        <td style="text-align:left;">
-        2011-09-06 05:46:12
+        2011-08-31 16:17:18
         </td>
         <td style="text-align:right;">
         0
@@ -232,16 +220,16 @@ b
         </tr>
         <tr>
         <td style="text-align:left;">
-        1001-0
+        1008-0
         </td>
         <td style="text-align:right;">
-        15
+        600
         </td>
         <td style="text-align:right;">
         1
         </td>
         <td style="text-align:left;">
-        b
+        a
         </td>
         <td style="text-align:left;">
         1)  Yes, (b) No
@@ -256,10 +244,7 @@ b
             TRUE
             </td>
             <td style="text-align:left;">
-            single\_entry
-            </td>
-            <td style="text-align:left;">
-            2011-09-06 19:22:39
+            2011-08-31 16:18:27
             </td>
             <td style="text-align:right;">
             0
@@ -270,16 +255,16 @@ b
             </tr>
             <tr>
             <td style="text-align:left;">
-            1001-0
+            1008-0
             </td>
             <td style="text-align:right;">
-            15
+            600
             </td>
             <td style="text-align:right;">
             1
             </td>
             <td style="text-align:left;">
-            b
+            a
             </td>
             <td style="text-align:left;">
             1)  Yes, (b) No
@@ -294,10 +279,7 @@ b
                 TRUE
                 </td>
                 <td style="text-align:left;">
-                single\_entry
-                </td>
-                <td style="text-align:left;">
-                2011-09-06 19:22:39
+                2011-08-31 16:18:27
                 </td>
                 <td style="text-align:right;">
                 0
@@ -308,10 +290,10 @@ b
                 </tr>
                 <tr>
                 <td style="text-align:left;">
-                1001-0
+                1006-0
                 </td>
                 <td style="text-align:right;">
-                19
+                600
                 </td>
                 <td style="text-align:right;">
                 1
@@ -332,10 +314,7 @@ b
                     TRUE
                     </td>
                     <td style="text-align:left;">
-                    single\_entry
-                    </td>
-                    <td style="text-align:left;">
-                    2011-09-06 09:20:49
+                    2011-08-31 16:18:47
                     </td>
                     <td style="text-align:right;">
                     0
@@ -346,10 +325,10 @@ b
                     </tr>
                     <tr>
                     <td style="text-align:left;">
-                    1001-0
+                    1006-0
                     </td>
                     <td style="text-align:right;">
-                    19
+                    600
                     </td>
                     <td style="text-align:right;">
                     1
@@ -370,10 +349,7 @@ b
                         TRUE
                         </td>
                         <td style="text-align:left;">
-                        single\_entry
-                        </td>
-                        <td style="text-align:left;">
-                        2011-09-06 09:20:49
+                        2011-08-31 16:18:47
                         </td>
                         <td style="text-align:right;">
                         0
@@ -392,69 +368,67 @@ b
 forecasts %>% 
   skimr::skim()
 #> Skim summary statistics
-#>  n obs: 923364 
-#>  n variables: 25 
+#>  n obs: 448418 
+#>  n variables: 23 
 #> 
 #> ── Variable type:character ───────────────────────────────────────────────────────────────
 #>       variable missing complete      n min max empty n_unique
-#>  answer_option       0   923364 923364   1   1     0        2
-#>            ctt       0   923364 923364   2   4     0      273
-#>         ifp_id       0   923364 923364   6   6     0      382
-#>        options       0   923364 923364  15 195     0       80
-#>        outcome       0   923364 923364   1   1     0        2
-#>       q_status       0   923364 923364   6   6     0        1
-#>         q_text       0   923364 923364  50 290     0      380
-#>  time_terminal       0   923364 923364  12  13     0        3
-#>       training       0   923364 923364   1   1     0       13
+#>  answer_option       0   448418 448418   1   1     0        2
+#>            ctt       0   448418 448418   2   4     0      273
+#>         ifp_id       0   448418 448418   6   6     0      382
+#>        options       0   448418 448418  15 195     0       80
+#>        outcome       0   448418 448418   1   1     0        2
+#>       q_status       0   448418 448418   6   6     0        1
+#>         q_text       0   448418 448418  50 290     0      380
+#>       training       0   448418 448418   1   1     0       13
 #> 
 #> ── Variable type:Date ────────────────────────────────────────────────────────────────────
 #>    variable missing complete      n        min        max     median
-#>  fcast_date       0   923364 923364 2011-08-31 2015-06-09 2014-03-05
+#>  fcast_date       0   448418 448418 2011-08-31 2015-06-09 2012-12-18
 #>  n_unique
-#>      1188
+#>      1168
 #> 
 #> ── Variable type:integer ─────────────────────────────────────────────────────────────────
-#>     variable missing complete      n       mean        sd p0       p25
-#>  raw_dat_obs       0   923364 923364 1204955.75 882184.47  1 346900.75
-#>        p50        p75    p100     hist
-#>  1101839.5 2146317.25 2784043 ▇▅▃▃▂▂▅▃
+#>     variable missing complete      n      mean        sd p0       p25
+#>  raw_dat_obs       0   448418 448418 714372.38 635768.92  1 224112.75
+#>       p50   p75    p100     hist
+#>  557963.5 1e+06 2783783 ▇▅▃▂▁▁▁▁
 #> 
 #> ── Variable type:logical ─────────────────────────────────────────────────────────────────
-#>    variable missing complete      n mean                           count
-#>  min_eq_max       0   923364 923364  0.4 FAL: 551020, TRU: 372344, NA: 0
-#>  options_yn       0   923364 923364  1                TRU: 923364, NA: 0
+#>    variable missing complete      n mean              count
+#>  options_yn       0   448418 448418    1 TRU: 448418, NA: 0
 #> 
 #> ── Variable type:numeric ─────────────────────────────────────────────────────────────────
-#>       variable missing complete      n      mean        sd     p0      p25
-#>           cond       0   923364 923364      2.36      1.54      1     1   
-#>      expertise  420574   502790 923364      2.39      1.07      0     2   
-#>     fcast_type       0   923364 923364      0.72      0.72      0     0   
-#>    forecast_id       0   923364 923364 706837.99 836816.13 -2e+05 17537   
-#>         n_opts       0   923364 923364      2         0         2     2   
-#>  q_conditional       0   923364 923364      0.13      0.34      0     0   
-#>         q_type       0   923364 923364      0.25      0.66      0     0   
-#>        user_id      28   923336 923364  40492.23  55265         3  3367   
-#>          value       0   923364 923364      0.5       0.35      0     0.15
-#>       viewtime  368040   555324 923364    370.79   9067.84      0    15   
-#>           year       0   923364 923364      2.83      1.23      1     2   
-#>       p50       p75    p100     hist
-#>       1        4          5 ▇▁▁▁▁▅▁▁
-#>       2        3          5 ▁▆▁▇▇▁▂▁
-#>       1        1          4 ▆▇▁▁▁▁▁▁
-#>  446895   914093    2259701 ▇▅▅▂▁▁▁▆
-#>       2        2          2 ▁▁▁▇▁▁▁▁
-#>       0        0          1 ▇▁▁▁▁▁▁▁
-#>       0        0          4 ▇▁▁▁▁▁▁▁
-#>    6496   124356     182001 ▇▁▁▁▁▃▁▁
-#>       0.5      0.85       1 ▇▅▂▃▂▃▃▇
-#>      48      180    2118638 ▇▁▁▁▁▁▁▁
-#>       3        4          4 ▃▁▃▁▁▂▁▇
+#>       variable missing complete      n      mean        sd     p0
+#>           cond       0   448418 448418      2.83      1.53      1
+#>      expertise   77614   370804 448418      2.38      1.04      0
+#>     fcast_type       0   448418 448418      0.18      0.82      0
+#>    forecast_id       0   448418 448418 244187.92 465588.98 -2e+05
+#>         n_opts       0   448418 448418      2         0         2
+#>  q_conditional       0   448418 448418      0.15      0.36      0
+#>         q_type       0   448418 448418      0.28      0.7       0
+#>        user_id      10   448408 448418  15436.8   35545.95      3
+#>          value       0   448418 448418      0.5       0.34      0
+#>       viewtime  277702   170716 448418    333.81   7398.95      0
+#>           year       0   448418 448418      2.19      1.12      1
+#>        p25      p50      p75    p100     hist
+#>       1         4       4          5 ▆▂▁▁▁▇▁▂
+#>       2         2       3          5 ▁▆▁▇▇▁▂▁
+#>       0         0       0          4 ▇▁▁▁▁▁▁▁
+#>  -55163.75 120661   4e+05    2259551 ▇▅▂▁▁▁▁▁
+#>       2         2       2          2 ▁▁▁▇▁▁▁▁
+#>       0         0       0          1 ▇▁▁▁▁▁▁▂
+#>       0         0       0          4 ▇▁▁▁▁▁▁▁
+#>    2519      4315    6825     182001 ▇▁▁▁▁▁▁▁
+#>       0.19      0.5     0.81       1 ▇▅▃▃▂▅▃▇
+#>      12        46     200     778955 ▇▁▁▁▁▁▁▁
+#>       1         2       3          4 ▇▁▅▁▁▅▁▃
 #> 
 #> ── Variable type:POSIXct ─────────────────────────────────────────────────────────────────
 #>   variable missing complete      n        min        max     median
-#>  timestamp       0   923364 923364 2011-08-31 2015-06-09 2014-03-05
+#>  timestamp       0   448418 448418 2011-08-31 2015-06-09 2012-12-18
 #>  n_unique
-#>    448687
+#>    232445
 ```
 
 But that code just makes it pretty. To access it in R, after loading
@@ -463,25 +437,24 @@ But that code just makes it pretty. To access it in R, after loading
 ``` r
  
 forecasts
-#> # A tibble: 923,364 x 25
-#>    ifp_id user_id min_eq_max time_terminal timestamp           q_text
-#>    <chr>    <dbl> <lgl>      <chr>         <dttm>              <chr> 
-#>  1 1001-0       3 TRUE       single_entry  2011-09-06 05:46:12 Will …
-#>  2 1001-0       3 TRUE       single_entry  2011-09-06 05:46:12 Will …
-#>  3 1001-0      15 TRUE       single_entry  2011-09-06 19:22:39 Will …
-#>  4 1001-0      15 TRUE       single_entry  2011-09-06 19:22:39 Will …
-#>  5 1001-0      19 TRUE       single_entry  2011-09-06 09:20:49 Will …
-#>  6 1001-0      19 TRUE       single_entry  2011-09-06 09:20:49 Will …
-#>  7 1001-0      23 TRUE       single_entry  2011-09-12 04:27:10 Will …
-#>  8 1001-0      23 TRUE       single_entry  2011-09-12 04:27:10 Will …
-#>  9 1001-0      25 TRUE       single_entry  2011-09-07 08:22:12 Will …
-#> 10 1001-0      25 TRUE       single_entry  2011-09-07 08:22:12 Will …
-#> # … with 923,354 more rows, and 19 more variables: q_type <dbl>,
-#> #   outcome <chr>, options <chr>, n_opts <dbl>, ctt <chr>, cond <dbl>,
-#> #   training <chr>, forecast_id <dbl>, fcast_type <dbl>,
-#> #   answer_option <chr>, value <dbl>, fcast_date <date>, expertise <dbl>,
-#> #   q_status <chr>, viewtime <dbl>, year <dbl>, raw_dat_obs <int>,
-#> #   options_yn <lgl>, q_conditional <dbl>
+#> # A tibble: 448,418 x 23
+#>    ifp_id q_text q_type outcome options n_opts ctt    cond training user_id
+#>    <chr>  <chr>   <dbl> <chr>   <chr>    <dbl> <chr> <dbl> <chr>      <dbl>
+#>  1 1004-0 Will …      0 b       (a) Ye…      2 1a        1 a            600
+#>  2 1004-0 Will …      0 b       (a) Ye…      2 1a        1 a            600
+#>  3 1008-0 By 31…      0 a       (a) Ye…      2 1a        1 a            600
+#>  4 1008-0 By 31…      0 a       (a) Ye…      2 1a        1 a            600
+#>  5 1006-0 Will …      0 b       (a) Ye…      2 1a        1 a            600
+#>  6 1006-0 Will …      0 b       (a) Ye…      2 1a        1 a            600
+#>  7 1003-0 Will …      0 b       (a) Ye…      2 1a        1 a            600
+#>  8 1005-0 Will …      0 a       (a) Ye…      2 1a        1 a            600
+#>  9 1005-0 Will …      0 a       (a) Ye…      2 1a        1 a            600
+#> 10 1004-0 Will …      0 b       (a) Ye…      2 1a        1 a           2986
+#> # … with 448,408 more rows, and 13 more variables: forecast_id <dbl>,
+#> #   fcast_type <dbl>, answer_option <chr>, value <dbl>, fcast_date <date>,
+#> #   expertise <dbl>, q_status <chr>, viewtime <dbl>, year <dbl>,
+#> #   timestamp <dttm>, raw_dat_obs <int>, options_yn <lgl>,
+#> #   q_conditional <dbl>
 
 # to see the if questions, we can filter by q_conditional
 forecasts %>% 
@@ -489,14 +462,14 @@ forecasts %>%
   head() %>% 
   select(q_text, options)
 #> # A tibble: 6 x 2
-#>   q_text                              options                              
-#>   <chr>                               <chr>                                
-#> 1 Will Syria use chemical or biologi… If there is not a substantial lethal…
-#> 2 Will Syria use chemical or biologi… If there is not a substantial lethal…
-#> 3 Will Syria use chemical or biologi… If there is not a substantial lethal…
-#> 4 Will Syria use chemical or biologi… If there is not a substantial lethal…
-#> 5 Will Syria use chemical or biologi… If there is not a substantial lethal…
-#> 6 Will Syria use chemical or biologi… If there is not a substantial lethal…
+#>   q_text                               options                             
+#>   <chr>                                <chr>                               
+#> 1 Will al-Shabaab commence official t… If Sharif Sheikh Ahmed does not win…
+#> 2 Will al-Shabaab commence official t… If Sharif Sheikh Ahmed does not win…
+#> 3 Will Syria use chemical or biologic… If there is not a substantial letha…
+#> 4 Will Syria use chemical or biologic… If there is not a substantial letha…
+#> 5 Will Syria use chemical or biologic… If there is not a substantial letha…
+#> 6 Will Syria use chemical or biologic… If there is not a substantial letha…
 
 # now let's make sure we've got only two options
 forecasts %>% 
@@ -504,6 +477,14 @@ forecasts %>%
   summary()
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 #>       2       2       2       2       2       2
+
+# now to check we've got the correct timepoints
+forecasts %>% 
+  pluck("fcast_type") %>% 
+  table() # should only have 0 and 4
+#> .
+#>      0      4 
+#> 428758  19660
 ```
 
 you can write this table out of R to a .csv with
