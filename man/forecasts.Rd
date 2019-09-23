@@ -4,7 +4,7 @@
 \name{forecasts}
 \alias{forecasts}
 \title{Forecasts data}
-\format{An object of class \code{spec_tbl_df} (inherits from \code{tbl_df}, \code{tbl}, \code{data.frame}) with 448418 rows and 23 columns.}
+\format{An object of class \code{spec_tbl_df} (inherits from \code{tbl_df}, \code{tbl}, \code{data.frame}) with 1659450 rows and 23 columns.}
 \usage{
 forecasts
 }

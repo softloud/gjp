@@ -32,6 +32,17 @@ devtools::install_github("softloud/gjp")
 
 
 
+```{r message=FALSE}
+ 
+
+library(gjp)
+library(tidyverse)
+
+
+
+```
+
+
 ## what's in it?
 
 This is a data package containing wrangled results for political knowledge from gjp data on the [Harvard Dataverse](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/BPCDH5). It's creative commons. 
@@ -41,19 +52,55 @@ I imagine you'll be primarily interested in the dataset with outcomes.
 The `forecasts` dataset is combines the 4 year's csvs of survey_fcasts data and then filters it:
 
 - binary outcomes (by combining with ifps data set)
+- `opts_n` contains the number of options, this dataset has been filtered for 2 options only. 
+
+```{r}
+# now let's make sure we've got only two options
+forecasts %>% 
+  pluck("n_opts") %>% 
+  summary()
+
+
+```
+
+
+
 - "closed" status questions
 <!-- - if multiple entries, first and last (see `time_terminal` for type of entry) -->
+
+```{r}
+
+# show 
+forecasts %>% 
+  pluck("q_status") %>% 
+  table()
+
+
+```
+
+
 - these have been filtered to `options` that contain `Yes` or `No`
-- `opts_n` contains the number of options, this dataset has been filtered for 2 options only. 
+
+
 - `q_conditional` indicates 1 if the question text `options` field begins with `If` and 0 if it begins with something else   
+- `fcast_type` now set to all values, to include all timepoints
+
+```{r}
+ 
+
+
+# now to check we've got the correct timepoints
+forecasts %>% 
+  pluck("fcast_type") %>% 
+  table() # should have all
+
+
+```
+
 
 Documentation coming, but here's the dataset in the meantime. 
 
 ```{r message=FALSE}
-
-library(gjp)
-library(tidyverse)
-
 
 # this code displays the data question_results which will be available once you 
 # install() and library() gjp
@@ -86,15 +133,6 @@ forecasts %>%
   head() %>% 
   select(q_text, options)
 
-# now let's make sure we've got only two options
-forecasts %>% 
-  pluck("n_opts") %>% 
-  summary()
-
-# now to check we've got the correct timepoints
-forecasts %>% 
-  pluck("fcast_type") %>% 
-  table() # should only have 0 and 4
 
 ```
 

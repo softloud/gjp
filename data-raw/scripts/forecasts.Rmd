@@ -111,7 +111,7 @@ forecasts_no_opt_flag <- bind_rows(forecasts_otp, forecasts_mtp)
 ```{r}
 # create flag for conditional or not conditional questions 
 forecasts <- forecasts_binary %>% 
-    dplyr::filter(fcast_type == 0 | fcast_type == 4) %>% 
+    # dplyr::filter(fcast_type == 0 | fcast_type == 4) %>% 
     # select(outcome, options) %>% 
     mutate(options_yn = str_detect(options, "Yes") &
                str_detect(options, ("No"))) %>% 
@@ -137,4 +137,6 @@ forecasts %>% pluck("fcast_type") %>% table()
 usethis::use_data(forecasts, overwrite = TRUE)
 
 ```
+
+
 

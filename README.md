@@ -18,6 +18,13 @@ You can install the current of gjp with:
 devtools::install_github("softloud/gjp")
 ```
 
+``` r
+ 
+
+library(gjp)
+library(tidyverse)
+```
+
 ## what’s in it?
 
 This is a data package containing wrangled results for political
@@ -31,22 +38,61 @@ The `forecasts` dataset is combines the 4 year’s csvs of survey\_fcasts
 data and then filters it:
 
   - binary outcomes (by combining with ifps data set)
-  - “closed” status questions
-  - if multiple entries, first and last (see `time_terminal` for type of
-    entry)
-  - these have been filtered to `options` that contain `Yes` or `No`
   - `opts_n` contains the number of options, this dataset has been
     filtered for 2 options only.
+
+<!-- end list -->
+
+``` r
+# now let's make sure we've got only two options
+forecasts %>% 
+  pluck("n_opts") %>% 
+  summary()
+#>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#>       2       2       2       2       2       2
+```
+
+  - “closed” status questions
+    <!-- - if multiple entries, first and last (see `time_terminal` for type of entry) -->
+
+<!-- end list -->
+
+``` r
+
+# show 
+forecasts %>% 
+  pluck("q_status") %>% 
+  table()
+#> .
+#>  closed 
+#> 1659450
+```
+
+  - these have been filtered to `options` that contain `Yes` or `No`
+
   - `q_conditional` indicates 1 if the question text `options` field
-    begins with `If` and 0 if it begins with something else
+    begins with `If` and 0 if it begins with something else  
+
+  - `fcast_type` now set to all values, to include all timepoints
+
+<!-- end list -->
+
+``` r
+ 
+
+
+# now to check we've got the correct timepoints
+forecasts %>% 
+  pluck("fcast_type") %>% 
+  table() # should have all
+#> .
+#>      0      1      2      4 
+#> 428758 928886 282146  19660
+```
 
 Documentation coming, but here’s the dataset in the meantime.
 
 ``` r
-
-library(gjp)
-library(tidyverse)
-
 
 # this code displays the data question_results which will be available once you 
 # install() and library() gjp
@@ -368,67 +414,67 @@ b
 forecasts %>% 
   skimr::skim()
 #> Skim summary statistics
-#>  n obs: 448418 
+#>  n obs: 1659450 
 #>  n variables: 23 
 #> 
-#> ── Variable type:character ───────────────────────────────────────────────────────────────
-#>       variable missing complete      n min max empty n_unique
-#>  answer_option       0   448418 448418   1   1     0        2
-#>            ctt       0   448418 448418   2   4     0      273
-#>         ifp_id       0   448418 448418   6   6     0      382
-#>        options       0   448418 448418  15 195     0       80
-#>        outcome       0   448418 448418   1   1     0        2
-#>       q_status       0   448418 448418   6   6     0        1
-#>         q_text       0   448418 448418  50 290     0      380
-#>       training       0   448418 448418   1   1     0       13
+#> ── Variable type:character ──────────────────────────────────────────────────────────────
+#>       variable missing complete       n min max empty n_unique
+#>  answer_option       0  1659450 1659450   1   1     0        2
+#>            ctt       0  1659450 1659450   2   4     0      273
+#>         ifp_id       0  1659450 1659450   6   6     0      382
+#>        options       0  1659450 1659450  15 195     0       80
+#>        outcome       0  1659450 1659450   1   1     0        2
+#>       q_status       0  1659450 1659450   6   6     0        1
+#>         q_text       0  1659450 1659450  50 290     0      380
+#>       training       0  1659450 1659450   1   1     0       13
 #> 
-#> ── Variable type:Date ────────────────────────────────────────────────────────────────────
-#>    variable missing complete      n        min        max     median
-#>  fcast_date       0   448418 448418 2011-08-31 2015-06-09 2012-12-18
+#> ── Variable type:Date ───────────────────────────────────────────────────────────────────
+#>    variable missing complete       n        min        max     median
+#>  fcast_date       0  1659450 1659450 2011-08-31 2015-06-09 2014-05-08
 #>  n_unique
-#>      1168
+#>      1188
 #> 
-#> ── Variable type:integer ─────────────────────────────────────────────────────────────────
-#>     variable missing complete      n      mean        sd p0       p25
-#>  raw_dat_obs       0   448418 448418 714372.38 635768.92  1 224112.75
-#>       p50   p75    p100     hist
-#>  557963.5 1e+06 2783783 ▇▅▃▂▁▁▁▁
+#> ── Variable type:integer ────────────────────────────────────────────────────────────────
+#>     variable missing complete       n       mean        sd p0       p25
+#>  raw_dat_obs       0  1659450 1659450 1294896.33 822512.65  1 553770.25
+#>        p50        p75    p100     hist
+#>  1254108.5 2056232.75 2784043 ▇▆▅▆▅▅▆▅
 #> 
-#> ── Variable type:logical ─────────────────────────────────────────────────────────────────
-#>    variable missing complete      n mean              count
-#>  options_yn       0   448418 448418    1 TRU: 448418, NA: 0
+#> ── Variable type:logical ────────────────────────────────────────────────────────────────
+#>    variable missing complete       n mean               count
+#>  options_yn       0  1659450 1659450    1 TRU: 1659450, NA: 0
 #> 
-#> ── Variable type:numeric ─────────────────────────────────────────────────────────────────
-#>       variable missing complete      n      mean        sd     p0
-#>           cond       0   448418 448418      2.83      1.53      1
-#>      expertise   77614   370804 448418      2.38      1.04      0
-#>     fcast_type       0   448418 448418      0.18      0.82      0
-#>    forecast_id       0   448418 448418 244187.92 465588.98 -2e+05
-#>         n_opts       0   448418 448418      2         0         2
-#>  q_conditional       0   448418 448418      0.15      0.36      0
-#>         q_type       0   448418 448418      0.28      0.7       0
-#>        user_id      10   448408 448418  15436.8   35545.95      3
-#>          value       0   448418 448418      0.5       0.34      0
-#>       viewtime  277702   170716 448418    333.81   7398.95      0
-#>           year       0   448418 448418      2.19      1.12      1
-#>        p25      p50      p75    p100     hist
-#>       1         4       4          5 ▆▂▁▁▁▇▁▂
-#>       2         2       3          5 ▁▆▁▇▇▁▂▁
-#>       0         0       0          4 ▇▁▁▁▁▁▁▁
-#>  -55163.75 120661   4e+05    2259551 ▇▅▂▁▁▁▁▁
-#>       2         2       2          2 ▁▁▁▇▁▁▁▁
-#>       0         0       0          1 ▇▁▁▁▁▁▁▂
-#>       0         0       0          4 ▇▁▁▁▁▁▁▁
-#>    2519      4315    6825     182001 ▇▁▁▁▁▁▁▁
-#>       0.19      0.5     0.81       1 ▇▅▃▃▂▅▃▇
-#>      12        46     200     778955 ▇▁▁▁▁▁▁▁
-#>       1         2       3          4 ▇▁▅▁▁▅▁▃
+#> ── Variable type:numeric ────────────────────────────────────────────────────────────────
+#>       variable missing complete       n      mean        sd     p0
+#>           cond       0  1659450 1659450      2.66      1.68      1
+#>      expertise  828738   830712 1659450      2.46      1.08      0
+#>     fcast_type       0  1659450 1659450      0.95      0.73      0
+#>    forecast_id       0  1659450 1659450 730364.05 776788.19 -2e+05
+#>         n_opts       0  1659450 1659450      2         0         2
+#>  q_conditional       0  1659450 1659450      0.15      0.36      0
+#>         q_type       0  1659450 1659450      0.28      0.69      0
+#>        user_id      28  1659422 1659450  38121.13  53333.16      3
+#>          value       0  1659450 1659450      0.5       0.36      0
+#>       viewtime  511346  1148104 1659450    309.61   7445.22      0
+#>           year       0  1659450 1659450      3.04      1.13      1
+#>        p25      p50       p75    p100     hist
+#>       1         2        4          5 ▇▁▁▁▁▅▁▃
+#>       2         2        3          5 ▁▅▁▇▇▁▂▁
+#>       0         1        1          4 ▃▇▁▂▁▁▁▁
+#>  118374    524101   878592    2259701 ▇▆▇▅▁▁▁▇
+#>       2         2        2          2 ▁▁▁▇▁▁▁▁
+#>       0         0        0          1 ▇▁▁▁▁▁▁▂
+#>       0         0        0          4 ▇▁▁▁▁▁▁▁
+#>    3559      8811    23336     182001 ▇▁▁▁▁▂▁▁
+#>       0.15      0.5      0.85       1 ▇▃▂▃▂▃▃▇
+#>      12        39      148    2118638 ▇▁▁▁▁▁▁▁
+#>       2         3        4          4 ▂▁▂▁▁▃▁▇
 #> 
-#> ── Variable type:POSIXct ─────────────────────────────────────────────────────────────────
-#>   variable missing complete      n        min        max     median
-#>  timestamp       0   448418 448418 2011-08-31 2015-06-09 2012-12-18
+#> ── Variable type:POSIXct ────────────────────────────────────────────────────────────────
+#>   variable missing complete       n        min        max     median
+#>  timestamp       0  1659450 1659450 2011-08-31 2015-06-09 2014-05-08
 #>  n_unique
-#>    232445
+#>    811235
 ```
 
 But that code just makes it pretty. To access it in R, after loading
@@ -437,7 +483,7 @@ But that code just makes it pretty. To access it in R, after loading
 ``` r
  
 forecasts
-#> # A tibble: 448,418 x 23
+#> # A tibble: 1,659,450 x 23
 #>    ifp_id q_text q_type outcome options n_opts ctt    cond training user_id
 #>    <chr>  <chr>   <dbl> <chr>   <chr>    <dbl> <chr> <dbl> <chr>      <dbl>
 #>  1 1004-0 Will …      0 b       (a) Ye…      2 1a        1 a            600
@@ -446,11 +492,11 @@ forecasts
 #>  4 1008-0 By 31…      0 a       (a) Ye…      2 1a        1 a            600
 #>  5 1006-0 Will …      0 b       (a) Ye…      2 1a        1 a            600
 #>  6 1006-0 Will …      0 b       (a) Ye…      2 1a        1 a            600
-#>  7 1003-0 Will …      0 b       (a) Ye…      2 1a        1 a            600
-#>  8 1005-0 Will …      0 a       (a) Ye…      2 1a        1 a            600
-#>  9 1005-0 Will …      0 a       (a) Ye…      2 1a        1 a            600
-#> 10 1004-0 Will …      0 b       (a) Ye…      2 1a        1 a           2986
-#> # … with 448,408 more rows, and 13 more variables: forecast_id <dbl>,
+#>  7 1001-0 Will …      0 b       (a) Ye…      2 1a        1 a            600
+#>  8 1001-0 Will …      0 b       (a) Ye…      2 1a        1 a            600
+#>  9 1003-0 Will …      0 b       (a) Ye…      2 1a        1 a            600
+#> 10 1003-0 Will …      0 b       (a) Ye…      2 1a        1 a            600
+#> # … with 1,659,440 more rows, and 13 more variables: forecast_id <dbl>,
 #> #   fcast_type <dbl>, answer_option <chr>, value <dbl>, fcast_date <date>,
 #> #   expertise <dbl>, q_status <chr>, viewtime <dbl>, year <dbl>,
 #> #   timestamp <dttm>, raw_dat_obs <int>, options_yn <lgl>,
@@ -470,21 +516,6 @@ forecasts %>%
 #> 4 Will Syria use chemical or biologic… If there is not a substantial letha…
 #> 5 Will Syria use chemical or biologic… If there is not a substantial letha…
 #> 6 Will Syria use chemical or biologic… If there is not a substantial letha…
-
-# now let's make sure we've got only two options
-forecasts %>% 
-  pluck("n_opts") %>% 
-  summary()
-#>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#>       2       2       2       2       2       2
-
-# now to check we've got the correct timepoints
-forecasts %>% 
-  pluck("fcast_type") %>% 
-  table() # should only have 0 and 4
-#> .
-#>      0      4 
-#> 428758  19660
 ```
 
 you can write this table out of R to a .csv with
