@@ -392,6 +392,18 @@ output_data <-
     outcome = answer_correct,
     cond_question = q_conditional
   )
+
+# take a look
+output_data %>% head()
+#> # A tibble: 6 x 5
+#>   userId questionId estimated_probability_ofOutput1 outcome cond_question
+#>    <dbl> <chr>                                <dbl>   <dbl>         <dbl>
+#> 1    600 1001-0                                 0.1       0             1
+#> 2    600 1001-0                                 0.9       1             1
+#> 3   2986 1001-0                                 0.1       0             1
+#> 4   2986 1001-0                                 0.9       1             1
+#> 5   3469 1001-0                                 0.2       0             1
+#> 6   3469 1001-0                                 0.8       1             1
 ```
 
 You can download a .csv of these data
