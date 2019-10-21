@@ -7,591 +7,394 @@
 
 <!-- badges: end -->
 
-## installation
-
-You can install the current of gjp with:
-
-``` r
-
-# you may need to install devtools first with
-# install.packages("devtools")
-devtools::install_github("softloud/gjp")
-```
-
 ``` r
  
-
+# packages used in this analysis
+library(tidyverse, quietly = TRUE)
+#> ── Attaching packages ─────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
+#> ✔ ggplot2 3.2.1     ✔ purrr   0.3.2
+#> ✔ tibble  2.1.3     ✔ dplyr   0.8.3
+#> ✔ tidyr   0.8.3     ✔ stringr 1.4.0
+#> ✔ readr   1.3.1     ✔ forcats 0.4.0
+#> ── Conflicts ────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+#> ✖ dplyr::filter() masks stats::filter()
+#> ✖ dplyr::lag()    masks stats::lag()
 library(gjp)
-library(tidyverse)
+
+# in case i forget to dplyr:: the filter calls 
+conflicted::conflict_prefer("filter", winner = "dplyr")
+#> [conflicted] Will prefer dplyr::filter over any other package
 ```
 
-## what’s in it?
+# objective
 
-This is a data package containing wrangled results for political
-knowledge from gjp data on the [Harvard
-Dataverse](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/BPCDH5).
-It’s creative commons.
+We wish to have the following desired output variables with filters
+applied.
 
-I imagine you’ll be primarily interested in the dataset with outcomes.
+## desired output
 
-The `forecasts` dataset is combines the 4 year’s csvs of survey\_fcasts
-data and then filters it:
+These variables in a table:
 
-  - binary outcomes (by combining with ifps data set)
-  - `opts_n` contains the number of options, this dataset has been
-    filtered for 2 options only.
+  - userId  
+  - questionId  
+  - 1st\_estimated\_probability\_ofOutput1  
+  - last\_ estimated\_probability\_ofOutput1  
+  - outcome(0/1)
+  - cond\_question(0/1)
+
+## filtered by
+
+  - closed questions
+  - binary questions
+  - first & last response to be converted into wide format
+
+# get data
+
+## files
+
+I think there are two places we get the observations of interest:
+
+1.  Files called **survey\_fcasts.yr\>n\<.csv**, where **\>n\<** takes
+    the values 1, 2, 3, or, 4, these have forecast data.
+2.  The **ifps.csv** file that has information about the questions.
 
 <!-- end list -->
 
 ``` r
-# now let's make sure we've got only two options
-forecasts %>% 
-  pluck("n_opts") %>% 
-  summary()
+ 
+# this script reads in all the csv files with fcast from the data-raw directory
+all_data <-
+    here::here() %>%
+    paste0("/data-raw") %>%
+    list.files() %>%
+    str_subset("fcast") %>%
+    paste0(here::here(), "/data-raw/", .) %>% map(read_csv) %>% 
+    map(select, -team) %>% # hopefully team variable is not required
+    bind_rows()
+#> Warning: 93008 parsing failures.
+#>  row  col           expected actual                                                               file
+#> 2913 team 1/0/T/F/TRUE/FALSE      4 '/home/charles/Documents/repos/gjp/data-raw/survey_fcasts.yr1.csv'
+#> 2914 team 1/0/T/F/TRUE/FALSE      4 '/home/charles/Documents/repos/gjp/data-raw/survey_fcasts.yr1.csv'
+#> 2920 team 1/0/T/F/TRUE/FALSE      2 '/home/charles/Documents/repos/gjp/data-raw/survey_fcasts.yr1.csv'
+#> 2921 team 1/0/T/F/TRUE/FALSE      2 '/home/charles/Documents/repos/gjp/data-raw/survey_fcasts.yr1.csv'
+#> 2922 team 1/0/T/F/TRUE/FALSE      2 '/home/charles/Documents/repos/gjp/data-raw/survey_fcasts.yr1.csv'
+#> .... .... .................. ...... ..................................................................
+#> See problems(...) for more details.
+```
+
+I *think* these errors are innocuous misreads of the team variable, but
+am happy to look into this further if you think it warrants it.
+
+# get variables
+
+These variables in a table:
+
+  - userId  
+  - questionId  
+  - 1st\_estimated\_probability\_ofOutput1  
+  - last\_ estimated\_probability\_ofOutput1  
+  - outcome(0/1)
+  - cond\_question(0/1)
+
+## userId
+
+We have some `NA`s we need to filter out.
+
+``` r
+all_data$user_id %>% summary()
+#>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+#>       3    3926    9068   39555  123238  182001      43
+```
+
+## questionId
+
+`ifp_id` variable found in both datasets.
+
+From the forecasts data we have , and from the questions, we have .
+
+``` r
+ 
+all_data$ifp_id %>% str()
+#>  chr [1:3143460] "1004-0" "1004-0" "1008-0" "1008-0" "1006-0" "1006-0" ...
+questions$ifp_id %>% str()
+#>  chr [1:617] "1001-0" "1002-0" "1003-0" "1004-0" "1005-0" "1006-0" ...
+```
+
+## estimated probability
+
+  - 1st\_estimated\_probability\_ofOutput1  
+  - last\_ estimated\_probability\_ofOutput1
+
+Now, if I’m understanding this correctly, the forecasts data is in long
+form, and we want in wide form with the first and last observation.
+
+Now, I’m not entirely sure about this, but I think this is the `value`
+variable in the forecasts dataset.
+
+## selecting those variables
+
+``` r
+# select from the fcasts
+fcasts_var <- all_data %>% # all fcasts .csv files bundled
+    select(
+        ifp_id, # question id
+        user_id, 
+        value, # estimated probability 
+        q_status, # filter by closed
+        fcast_type,
+        answer_option,
+        training
+        )
+ 
+
+# select from the ifps.csv file
+questions_var <- questions %>%
+    select(ifp_id, # question id
+           n_opts,
+           q_type,
+           outcome
+           )  %>% 
+    mutate(
+        # mark as conditional
+        q_conditional = q_type == 0 & n_opts == 2
+    ) 
+
+
+# join together
+output_var <- 
+    inner_join(questions_var, fcasts_var, by = "ifp_id") %>% 
+    mutate(answer_correct = answer_option == outcome)
+
+# take a look
+output_var %>% skimr::skim()
+#> Skim summary statistics
+#>  n obs: 3143460 
+#>  n variables: 12 
+#> 
+#> ── Variable type:character ─────────────────────────────────────────────────────────────────────────────────────
+#>       variable missing complete       n min max empty n_unique
+#>  answer_option       0  3143460 3143460   1   1     0        5
+#>         ifp_id       0  3143460 3143460   6   6     0      614
+#>        outcome  359417  2784043 3143460   1   1     0        5
+#>       q_status       0  3143460 3143460   6   6     0        3
+#>       training       0  3143460 3143460   1   1     0       13
+#> 
+#> ── Variable type:logical ───────────────────────────────────────────────────────────────────────────────────────
+#>        variable missing complete       n mean
+#>  answer_correct  359417  2784043 3143460 0.4 
+#>   q_conditional       0  3143460 3143460 0.46
+#>                                   count
+#>  FAL: 1663893, TRU: 1120150, NA: 359417
+#>       FAL: 1685804, TRU: 1457656, NA: 0
+#> 
+#> ── Variable type:numeric ───────────────────────────────────────────────────────────────────────────────────────
+#>    variable missing complete       n     mean       sd p0     p25    p50
+#>  fcast_type       0  3143460 3143460     0.99     0.72  0    1       1  
+#>      n_opts       0  3143460 3143460     2.76     1.08  2    2       2  
+#>      q_type       0  3143460 3143460     1.94     2.61  0    0       0  
+#>     user_id      43  3143417 3143460 39555.06 53749.65  3 3926    9068  
+#>       value       0  3143460 3143460     0.41     0.37  0    0.05    0.3
+#>        p75   p100     hist
+#>       1         4 ▃▇▁▂▁▁▁▁
+#>       4         5 ▇▁▁▁▁▂▁▂
+#>       6         6 ▇▁▁▁▁▁▁▅
+#>  123238    182001 ▇▁▁▁▁▂▁▁
+#>       0.79      1 ▇▃▂▂▁▂▂▅
+```
+
+# filters
+
+``` r
+# we have missing user_ids
+filtered_data <-
+    output_var %>% 
+    dplyr::filter(
+        !is.na(user_id),
+        q_conditional == TRUE,
+        q_status == "closed"
+    )
+
+filtered_data %>% skimr::skim()
+#> Skim summary statistics
+#>  n obs: 1403866 
+#>  n variables: 12 
+#> 
+#> ── Variable type:character ─────────────────────────────────────────────────────────────────────────────────────
+#>       variable missing complete       n min max empty n_unique
+#>  answer_option       0  1403866 1403866   1   1     0        2
+#>         ifp_id       0  1403866 1403866   6   6     0      303
+#>        outcome       0  1403866 1403866   1   1     0        2
+#>       q_status       0  1403866 1403866   6   6     0        1
+#>       training       0  1403866 1403866   1   1     0       13
+#> 
+#> ── Variable type:logical ───────────────────────────────────────────────────────────────────────────────────────
+#>        variable missing complete       n mean
+#>  answer_correct       0  1403866 1403866  0.5
+#>   q_conditional       0  1403866 1403866  1  
+#>                            count
+#>  FAL: 701933, TRU: 701933, NA: 0
+#>              TRU: 1403866, NA: 0
+#> 
+#> ── Variable type:numeric ───────────────────────────────────────────────────────────────────────────────────────
+#>    variable missing complete       n     mean       sd p0     p25    p50
+#>  fcast_type       0  1403866 1403866     0.94     0.72  0    0       1  
+#>      n_opts       0  1403866 1403866     2        0     2    2       2  
+#>      q_type       0  1403866 1403866     0        0     0    0       0  
+#>     user_id       0  1403866 1403866 40539.4  54691.28  3 3581    9002  
+#>       value       0  1403866 1403866     0.5      0.36  0    0.15    0.5
+#>        p75   p100     hist
+#>       1         4 ▃▇▁▂▁▁▁▁
+#>       2         2 ▁▁▁▇▁▁▁▁
+#>       0         0 ▁▁▁▇▁▁▁▁
+#>  123985    182001 ▇▁▁▁▁▂▁▁
+#>       0.85      1 ▇▅▂▃▂▃▃▇
+```
+
+Now, let’s check the variables of interest before we remove them.
+
+## Conditional
+
+    From variables.txt:
+    
+    # IFP question type
+    
+    q_type        0 = regular binomial or multinomial
+                  1 = cIFP, Answer Option 1 
+                  2 = cIFP, Answer Option 2
+                  3 = cIFP, Answer Option 3
+                  4 = cIFP, Answer Option 4
+                  5 = cIFP, Answer Option 5
+                  6 = Ordered Multinomial
+
+### `q_type` is all 0
+
+Makes sure it’s categorical.
+
+``` r
+ 
+filtered_data$q_type %>% summary()
+#>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#>       0       0       0       0       0       0
+```
+
+### `n_opts` is 2
+
+And that it is binomial, not multinomial.
+
+``` r
+
+filtered_data$n_opts %>% summary()
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 #>       2       2       2       2       2       2
 ```
 
-  - “closed” status questions
-    <!-- - if multiple entries, first and last (see `time_terminal` for type of entry) -->
+## `q_status` is closed
 
-<!-- end list -->
+Check we don’t have any voided questions.
 
 ``` r
-
-# show 
-forecasts %>% 
-  pluck("q_status") %>% 
-  table()
+ 
+filtered_data$q_status %>% table()
 #> .
 #>  closed 
-#> 1659450
+#> 1403866
 ```
 
-  - these have been filtered to `options` that contain `Yes` or `No`
+## `outcome`
 
-  - `q_conditional` indicates 1 if the question text `options` field
-    begins with `If` and 0 if it begins with something else  
+Now, I’m not sure about this. Here’s what I have so far.
 
-  - `fcast_type` now set to all values, to include all timepoints
-
-<!-- end list -->
+There is an `outcome` variable in the ifps.csv file.
 
 ``` r
  
-
-
-# now to check we've got the correct timepoints
-forecasts %>% 
-  pluck("fcast_type") %>% 
-  table() # should have all
-#> .
-#>      0      1      2      4 
-#> 428758 928886 282146  19660
+questions$outcome %>% str() 
+#>  chr [1:617] "b" "b" "b" "b" "a" "b" "b" "a" "c" "b" "b" "b" "b" "c" ...
 ```
 
-Documentation coming, but here’s the dataset in the meantime.
+And there are two variables in the forecasts data that have similar
+results.
+
+I haven’t been able to find documentation on these variables:
+`answer_option` and `training`. But we can take a look at the matchings.
+
+``` r
+filtered_data$answer_option %>% str()
+#>  chr [1:1403866] "a" "b" "a" "b" "a" "b" "a" "b" "a" "b" "a" "b" "a" ...
+filtered_data$training %>% str()
+#>  chr [1:1403866] "a" "a" "a" "a" "a" "a" "a" "a" "a" "a" "a" "a" "a" ...
+```
+
+We can also take a look at the combinations of outcome with these
+variables.
+
+``` r
+filtered_data %>% count(outcome, answer_option)
+#> # A tibble: 4 x 3
+#>   outcome answer_option      n
+#>   <chr>   <chr>          <int>
+#> 1 a       a             157963
+#> 2 a       b             157963
+#> 3 b       a             543970
+#> 4 b       b             543970
+filtered_data %>% count(outcome, training)
+#> # A tibble: 26 x 3
+#>    outcome training     n
+#>    <chr>   <chr>    <int>
+#>  1 a       a        49792
+#>  2 a       b        87040
+#>  3 a       c        18330
+#>  4 a       d        21176
+#>  5 a       h        12406
+#>  6 a       n         2904
+#>  7 a       p        13062
+#>  8 a       q         1488
+#>  9 a       r        32842
+#> 10 a       s        28516
+#> # … with 16 more rows
+```
+
+I don’t like the look of either of these, frankly. Anca, can you shed
+any light?
+
+## wide by time
+
+Now this is the tricky one.
+
+    from variables.txt
+    
+    fcast_type    0 = new, first forecast on an IFP by a user
+                  1 = update, subsequent forecast by a user
+                  2 = affirm, update to a forecast with no change in value
+                  4 = withdraw (probabilities show last standing, individual scoring stops after this date)
+
+Am I correct in the understanding, you would like the `value` of the
+user’s first and last input?
+
+Do you think we can use `fcast_type`, or do I need to do something more
+clever with the time stamps?
+
+# output data
+
+``` r
+# wrangle into desired format
+output_data <-  
+  filtered_data %>% 
+  mutate(
+    answer_correct = as.numeric(answer_correct),
+    q_conditional = as.numeric(q_conditional)
+    
+  ) %>% 
+  select(
+    userId = user_id,
+    questionId = ifp_id,
+    estimated_probability_ofOutput1 = value,
+    outcome = answer_correct,
+    cond_question = q_conditional
+  )
+```
 
 ``` r
 
-# this code displays the data question_results which will be available once you 
-# install() and library() gjp
-forecasts %>% 
-  head() %>% 
-  select(ifp_id, user_id, year, outcome, options, n_opts, q_conditional, options_yn, timestamp, q_type,  q_status) %>% # remove question text for formatting
-  kableExtra::kable()
+write_csv(output_data, "forecast.csv")
 ```
-
-<table>
-
-<thead>
-
-<tr>
-
-<th style="text-align:left;">
-
-ifp\_id
-
-</th>
-
-<th style="text-align:right;">
-
-user\_id
-
-</th>
-
-<th style="text-align:right;">
-
-year
-
-</th>
-
-<th style="text-align:left;">
-
-outcome
-
-</th>
-
-<th style="text-align:left;">
-
-options
-
-</th>
-
-<th style="text-align:right;">
-
-n\_opts
-
-</th>
-
-<th style="text-align:right;">
-
-q\_conditional
-
-</th>
-
-<th style="text-align:left;">
-
-options\_yn
-
-</th>
-
-<th style="text-align:left;">
-
-timestamp
-
-</th>
-
-<th style="text-align:right;">
-
-q\_type
-
-</th>
-
-<th style="text-align:left;">
-
-q\_status
-
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-
-<td style="text-align:left;">
-
-1004-0
-
-</td>
-
-<td style="text-align:right;">
-
-600
-
-</td>
-
-<td style="text-align:right;">
-
-1
-
-</td>
-
-<td style="text-align:left;">
-
-b
-
-</td>
-
-<td style="text-align:left;">
-
-1)  Yes, (b) No
-    </td>
-    <td style="text-align:right;">
-    2
-    </td>
-    <td style="text-align:right;">
-    0
-    </td>
-    <td style="text-align:left;">
-    TRUE
-    </td>
-    <td style="text-align:left;">
-    2011-08-31 16:17:18
-    </td>
-    <td style="text-align:right;">
-    0
-    </td>
-    <td style="text-align:left;">
-    closed
-    </td>
-    </tr>
-    <tr>
-    <td style="text-align:left;">
-    1004-0
-    </td>
-    <td style="text-align:right;">
-    600
-    </td>
-    <td style="text-align:right;">
-    1
-    </td>
-    <td style="text-align:left;">
-    b
-    </td>
-    <td style="text-align:left;">
-    1)  Yes, (b) No
-        </td>
-        <td style="text-align:right;">
-        2
-        </td>
-        <td style="text-align:right;">
-        0
-        </td>
-        <td style="text-align:left;">
-        TRUE
-        </td>
-        <td style="text-align:left;">
-        2011-08-31 16:17:18
-        </td>
-        <td style="text-align:right;">
-        0
-        </td>
-        <td style="text-align:left;">
-        closed
-        </td>
-        </tr>
-        <tr>
-        <td style="text-align:left;">
-        1008-0
-        </td>
-        <td style="text-align:right;">
-        600
-        </td>
-        <td style="text-align:right;">
-        1
-        </td>
-        <td style="text-align:left;">
-        a
-        </td>
-        <td style="text-align:left;">
-        1)  Yes, (b) No
-            </td>
-            <td style="text-align:right;">
-            2
-            </td>
-            <td style="text-align:right;">
-            0
-            </td>
-            <td style="text-align:left;">
-            TRUE
-            </td>
-            <td style="text-align:left;">
-            2011-08-31 16:18:27
-            </td>
-            <td style="text-align:right;">
-            0
-            </td>
-            <td style="text-align:left;">
-            closed
-            </td>
-            </tr>
-            <tr>
-            <td style="text-align:left;">
-            1008-0
-            </td>
-            <td style="text-align:right;">
-            600
-            </td>
-            <td style="text-align:right;">
-            1
-            </td>
-            <td style="text-align:left;">
-            a
-            </td>
-            <td style="text-align:left;">
-            1)  Yes, (b) No
-                </td>
-                <td style="text-align:right;">
-                2
-                </td>
-                <td style="text-align:right;">
-                0
-                </td>
-                <td style="text-align:left;">
-                TRUE
-                </td>
-                <td style="text-align:left;">
-                2011-08-31 16:18:27
-                </td>
-                <td style="text-align:right;">
-                0
-                </td>
-                <td style="text-align:left;">
-                closed
-                </td>
-                </tr>
-                <tr>
-                <td style="text-align:left;">
-                1006-0
-                </td>
-                <td style="text-align:right;">
-                600
-                </td>
-                <td style="text-align:right;">
-                1
-                </td>
-                <td style="text-align:left;">
-                b
-                </td>
-                <td style="text-align:left;">
-                1)  Yes, (b) No
-                    </td>
-                    <td style="text-align:right;">
-                    2
-                    </td>
-                    <td style="text-align:right;">
-                    0
-                    </td>
-                    <td style="text-align:left;">
-                    TRUE
-                    </td>
-                    <td style="text-align:left;">
-                    2011-08-31 16:18:47
-                    </td>
-                    <td style="text-align:right;">
-                    0
-                    </td>
-                    <td style="text-align:left;">
-                    closed
-                    </td>
-                    </tr>
-                    <tr>
-                    <td style="text-align:left;">
-                    1006-0
-                    </td>
-                    <td style="text-align:right;">
-                    600
-                    </td>
-                    <td style="text-align:right;">
-                    1
-                    </td>
-                    <td style="text-align:left;">
-                    b
-                    </td>
-                    <td style="text-align:left;">
-                    1)  Yes, (b) No
-                        </td>
-                        <td style="text-align:right;">
-                        2
-                        </td>
-                        <td style="text-align:right;">
-                        0
-                        </td>
-                        <td style="text-align:left;">
-                        TRUE
-                        </td>
-                        <td style="text-align:left;">
-                        2011-08-31 16:18:47
-                        </td>
-                        <td style="text-align:right;">
-                        0
-                        </td>
-                        <td style="text-align:left;">
-                        closed
-                        </td>
-                        </tr>
-                        </tbody>
-                        </table>
-
-<!-- end list -->
-
-``` r
-# an overview of what we've got
-forecasts %>% 
-  skimr::skim()
-#> Skim summary statistics
-#>  n obs: 1659450 
-#>  n variables: 23 
-#> 
-#> ── Variable type:character ──────────────────────────────────────────────────────────────
-#>       variable missing complete       n min max empty n_unique
-#>  answer_option       0  1659450 1659450   1   1     0        2
-#>            ctt       0  1659450 1659450   2   4     0      273
-#>         ifp_id       0  1659450 1659450   6   6     0      382
-#>        options       0  1659450 1659450  15 195     0       80
-#>        outcome       0  1659450 1659450   1   1     0        2
-#>       q_status       0  1659450 1659450   6   6     0        1
-#>         q_text       0  1659450 1659450  50 290     0      380
-#>       training       0  1659450 1659450   1   1     0       13
-#> 
-#> ── Variable type:Date ───────────────────────────────────────────────────────────────────
-#>    variable missing complete       n        min        max     median
-#>  fcast_date       0  1659450 1659450 2011-08-31 2015-06-09 2014-05-08
-#>  n_unique
-#>      1188
-#> 
-#> ── Variable type:integer ────────────────────────────────────────────────────────────────
-#>     variable missing complete       n       mean        sd p0       p25
-#>  raw_dat_obs       0  1659450 1659450 1294896.33 822512.65  1 553770.25
-#>        p50        p75    p100     hist
-#>  1254108.5 2056232.75 2784043 ▇▆▅▆▅▅▆▅
-#> 
-#> ── Variable type:logical ────────────────────────────────────────────────────────────────
-#>    variable missing complete       n mean               count
-#>  options_yn       0  1659450 1659450    1 TRU: 1659450, NA: 0
-#> 
-#> ── Variable type:numeric ────────────────────────────────────────────────────────────────
-#>       variable missing complete       n      mean        sd     p0
-#>           cond       0  1659450 1659450      2.66      1.68      1
-#>      expertise  828738   830712 1659450      2.46      1.08      0
-#>     fcast_type       0  1659450 1659450      0.95      0.73      0
-#>    forecast_id       0  1659450 1659450 730364.05 776788.19 -2e+05
-#>         n_opts       0  1659450 1659450      2         0         2
-#>  q_conditional       0  1659450 1659450      0.15      0.36      0
-#>         q_type       0  1659450 1659450      0.28      0.69      0
-#>        user_id      28  1659422 1659450  38121.13  53333.16      3
-#>          value       0  1659450 1659450      0.5       0.36      0
-#>       viewtime  511346  1148104 1659450    309.61   7445.22      0
-#>           year       0  1659450 1659450      3.04      1.13      1
-#>        p25      p50       p75    p100     hist
-#>       1         2        4          5 ▇▁▁▁▁▅▁▃
-#>       2         2        3          5 ▁▅▁▇▇▁▂▁
-#>       0         1        1          4 ▃▇▁▂▁▁▁▁
-#>  118374    524101   878592    2259701 ▇▆▇▅▁▁▁▇
-#>       2         2        2          2 ▁▁▁▇▁▁▁▁
-#>       0         0        0          1 ▇▁▁▁▁▁▁▂
-#>       0         0        0          4 ▇▁▁▁▁▁▁▁
-#>    3559      8811    23336     182001 ▇▁▁▁▁▂▁▁
-#>       0.15      0.5      0.85       1 ▇▃▂▃▂▃▃▇
-#>      12        39      148    2118638 ▇▁▁▁▁▁▁▁
-#>       2         3        4          4 ▂▁▂▁▁▃▁▇
-#> 
-#> ── Variable type:POSIXct ────────────────────────────────────────────────────────────────
-#>   variable missing complete       n        min        max     median
-#>  timestamp       0  1659450 1659450 2011-08-31 2015-06-09 2014-05-08
-#>  n_unique
-#>    811235
-```
-
-But that code just makes it pretty. To access it in R, after loading
-`gjp::` with `library(gjp)`:
-
-``` r
- 
-forecasts
-#> # A tibble: 1,659,450 x 23
-#>    ifp_id q_text q_type outcome options n_opts ctt    cond training user_id
-#>    <chr>  <chr>   <dbl> <chr>   <chr>    <dbl> <chr> <dbl> <chr>      <dbl>
-#>  1 1004-0 Will …      0 b       (a) Ye…      2 1a        1 a            600
-#>  2 1004-0 Will …      0 b       (a) Ye…      2 1a        1 a            600
-#>  3 1008-0 By 31…      0 a       (a) Ye…      2 1a        1 a            600
-#>  4 1008-0 By 31…      0 a       (a) Ye…      2 1a        1 a            600
-#>  5 1006-0 Will …      0 b       (a) Ye…      2 1a        1 a            600
-#>  6 1006-0 Will …      0 b       (a) Ye…      2 1a        1 a            600
-#>  7 1001-0 Will …      0 b       (a) Ye…      2 1a        1 a            600
-#>  8 1001-0 Will …      0 b       (a) Ye…      2 1a        1 a            600
-#>  9 1003-0 Will …      0 b       (a) Ye…      2 1a        1 a            600
-#> 10 1003-0 Will …      0 b       (a) Ye…      2 1a        1 a            600
-#> # … with 1,659,440 more rows, and 13 more variables: forecast_id <dbl>,
-#> #   fcast_type <dbl>, answer_option <chr>, value <dbl>, fcast_date <date>,
-#> #   expertise <dbl>, q_status <chr>, viewtime <dbl>, year <dbl>,
-#> #   timestamp <dttm>, raw_dat_obs <int>, options_yn <lgl>,
-#> #   q_conditional <dbl>
-
-# to see the if questions, we can filter by q_conditional
-forecasts %>% 
-  dplyr::filter(q_conditional == 1) %>% 
-  head() %>% 
-  select(q_text, options)
-#> # A tibble: 6 x 2
-#>   q_text                               options                             
-#>   <chr>                                <chr>                               
-#> 1 Will al-Shabaab commence official t… If Sharif Sheikh Ahmed does not win…
-#> 2 Will al-Shabaab commence official t… If Sharif Sheikh Ahmed does not win…
-#> 3 Will Syria use chemical or biologic… If there is not a substantial letha…
-#> 4 Will Syria use chemical or biologic… If there is not a substantial letha…
-#> 5 Will Syria use chemical or biologic… If there is not a substantial letha…
-#> 6 Will Syria use chemical or biologic… If there is not a substantial letha…
-```
-
-you can write this table out of R to a .csv with
-
-``` r
-
-# You may need to install.packages("readr")
-readr::write_csv(forecasts, "<path/file>.csv") 
- 
-```
-
-where you replace `<path/file>` with your desired file name and
-location.
-
-## these data are documented
-
-This is (optimistically) where you’ll find more information about the
-size of the table, and what columns and rows it has.
-
-``` r
-# check out the help for a dataset in gjp
-library(gjp)
-?question_results
-```
-
-## but wait there’s more
-
-But there’s some other datasets, too.
-
-``` r
-
-# question results
-question_results %>% head()
-#> # A tibble: 6 x 7
-#>    year question_no question        original_row user_id confidence outcome
-#>   <dbl>       <dbl> <chr>                  <int>   <dbl>      <dbl>   <dbl>
-#> 1     1           1 The leadership…            1       3        0.6       0
-#> 2     1           1 The leadership…            2       5        0.5       1
-#> 3     1           1 The leadership…            3       6        0.7       1
-#> 4     1           1 The leadership…            4      10        0.9       1
-#> 5     1           1 The leadership…            5      14        0.6       1
-#> 6     1           1 The leadership…            6      15        0.9       1
-
-# meta data about all data files
-meta_data %>% head()
-#> # A tibble: 6 x 6
-#>   file           is_csv file_path              variables  first_var pk_flag
-#>   <chr>          <lgl>  <chr>                  <named li> <chr>     <lgl>  
-#> 1 all_individua… TRUE   analysis/data/raw_dat… <chr [1,5… userid_y… TRUE   
-#> 2 ifps-text.csv  TRUE   analysis/data/raw_dat… <chr [3]>  no        FALSE  
-#> 3 ifps.csv       TRUE   analysis/data/raw_dat… <chr [3]>  no        FALSE  
-#> 4 pm_batch_orde… TRUE   analysis/data/raw_dat… <chr [9]>  Market.N… FALSE  
-#> 5 pm_batch_orde… TRUE   analysis/data/raw_dat… <chr [9]>  Market.N… FALSE  
-#> 6 pm_batch_orde… TRUE   analysis/data/raw_dat… <chr [9]>  Market.N… FALSE
-
-# participants responses raw; the outcomes are extracted from this
-participants_responses %>% dim()
-#> [1] 14001  1539
-
-# questions text, number, and year reference
-questions_text %>% head()
-#> # A tibble: 6 x 3
-#>      yr    no question                                                     
-#>   <dbl> <dbl> <chr>                                                        
-#> 1     1     1 The leadership of Saudi Arabia, like that of Iran, embraces …
-#> 2     1     2 Pakistan has a majority Hindu population. [F]                
-#> 3     1     3 The Japanese economy has registered GDP growth rates between…
-#> 4     1     4 The International Monetary Fund has had to lend Greece many …
-#> 5     1     5 The United Kingdom never adopted the euro as its currency. […
-#> 6     1     6 Azerbaijan and Armenia have formally settled their border di…
-
-# questions reference file provided
-questions %>% dim()
-#> [1] 617  14
-```
-
-## after Germany
-
-Proper documentation and those demographics for Bonnie.

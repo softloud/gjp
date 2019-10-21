@@ -19,170 +19,297 @@ knitr::opts_chunk$set(
 <!-- badges: end -->
 
 
-## installation
-
-You can install the current of gjp  with:
-
-``` {r eval=FALSE}
-
-# you may need to install devtools first with
-# install.packages("devtools")
-devtools::install_github("softloud/gjp")
-```
-
-
-
-```{r message=FALSE}
+```{r messages=FALSE, warning=FALSE}
  
-
+# packages used in this analysis
+library(tidyverse, quietly = TRUE)
 library(gjp)
-library(tidyverse)
 
-
+# in case i forget to dplyr:: the filter calls 
+conflicted::conflict_prefer("filter", winner = "dplyr")
 
 ```
 
 
-## what's in it?
+# objective
 
-This is a data package containing wrangled results for political knowledge from gjp data on the [Harvard Dataverse](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/BPCDH5). It's creative commons. 
+We wish to have the following desired output variables with filters applied. 
 
-I imagine you'll be primarily interested in the dataset with outcomes. 
+## desired output
 
-The `forecasts` dataset is combines the 4 year's csvs of survey_fcasts data and then filters it:
+These variables in a table:
 
-- binary outcomes (by combining with ifps data set)
-- `opts_n` contains the number of options, this dataset has been filtered for 2 options only. 
+- userId   
+- questionId  
+- 1st_estimated_probability_ofOutput1   
+- last_ estimated_probability_ofOutput1  
+- outcome(0/1) 
+- cond_question(0/1)
+
+## filtered by
+
+- closed questions
+- binary questions
+- first & last response to be converted into wide format
+
+# get data
+
+## files 
+
+I think there are two places we get the observations of interest: 
+
+1. Files called **survey_fcasts.yr>n<.csv**, where **>n<** takes the values 1, 2, 3, or, 4, these have forecast data. 
+2. The **ifps.csv** file that has information about the questions.
+
+
+```{r get all data, message=FALSE}
+ 
+# this script reads in all the csv files with fcast from the data-raw directory
+all_data <-
+    here::here() %>%
+    paste0("/data-raw") %>%
+    list.files() %>%
+    str_subset("fcast") %>%
+    paste0(here::here(), "/data-raw/", .) %>% map(read_csv) %>% 
+    map(select, -team) %>% # hopefully team variable is not required
+    bind_rows()
+
+```
+
+
+I _think_ these errors are innocuous misreads of the team variable, but am happy to look into this further if you think it warrants it. 
+
+# get variables
+
+These variables in a table:
+
+- userId   
+- questionId  
+- 1st_estimated_probability_ofOutput1   
+- last_ estimated_probability_ofOutput1  
+- outcome(0/1) 
+- cond_question(0/1)
+
+## userId
+
+We have some `NA`s we need to filter out. 
 
 ```{r}
-# now let's make sure we've got only two options
-forecasts %>% 
-  pluck("n_opts") %>% 
-  summary()
-
+all_data$user_id %>% summary()
 
 ```
 
+## questionId
 
+`ifp_id` variable found in both datasets. 
 
-- "closed" status questions
-<!-- - if multiple entries, first and last (see `time_terminal` for type of entry) -->
+From the forecasts data we have `r all_data$ifp_id %>% str()`, and from the questions, we have `r questions$ifp_id %>% str()`.
 
-```{r}
-
-# show 
-forecasts %>% 
-  pluck("q_status") %>% 
-  table()
-
-
-```
-
-
-- these have been filtered to `options` that contain `Yes` or `No`
-
-
-- `q_conditional` indicates 1 if the question text `options` field begins with `If` and 0 if it begins with something else   
-- `fcast_type` now set to all values, to include all timepoints
 
 ```{r}
  
-
-
-# now to check we've got the correct timepoints
-forecasts %>% 
-  pluck("fcast_type") %>% 
-  table() # should have all
-
+all_data$ifp_id %>% str()
+questions$ifp_id %>% str()
 
 ```
 
+## estimated probability
 
-Documentation coming, but here's the dataset in the meantime. 
+- 1st_estimated_probability_ofOutput1   
+- last_ estimated_probability_ofOutput1  
 
-```{r message=FALSE}
+Now, if I'm understanding this correctly, the forecasts data is in long form, and we want in wide form with the first and last observation. 
 
-# this code displays the data question_results which will be available once you 
-# install() and library() gjp
-forecasts %>% 
-  head() %>% 
-  select(ifp_id, user_id, year, outcome, options, n_opts, q_conditional, options_yn, timestamp, q_type,  q_status) %>% # remove question text for formatting
-  kableExtra::kable()
+Now, I'm not entirely sure about this, but I think this is the `value` variable in the forecasts dataset. 
 
 
-```
+
+## selecting those variables
 
 ```{r}
-# an overview of what we've got
-forecasts %>% 
-  skimr::skim()
+# select from the fcasts
+fcasts_var <- all_data %>% # all fcasts .csv files bundled
+    select(
+        ifp_id, # question id
+        user_id, 
+        value, # estimated probability 
+        q_status, # filter by closed
+        fcast_type,
+        answer_option,
+        training
+        )
+ 
 
+# select from the ifps.csv file
+questions_var <- questions %>%
+    select(ifp_id, # question id
+           n_opts,
+           q_type,
+           outcome
+           )  %>% 
+    mutate(
+        # mark as conditional
+        q_conditional = q_type == 0 & n_opts == 2
+    ) 
+
+
+# join together
+output_var <- 
+    inner_join(questions_var, fcasts_var, by = "ifp_id") %>% 
+    mutate(answer_correct = answer_option == outcome)
+
+# take a look
+output_var %>% skimr::skim()
+
+```
+
+# filters
+
+```{r}
+# we have missing user_ids
+filtered_data <-
+    output_var %>% 
+    dplyr::filter(
+        !is.na(user_id),
+        q_conditional == TRUE,
+        q_status == "closed"
+    )
+
+filtered_data %>% skimr::skim()
+```
+
+Now, let's check the variables of interest before we remove them.
+
+
+## Conditional
+
+```
+From variables.txt:
+
+# IFP question type
+
+q_type        0 = regular binomial or multinomial
+              1 = cIFP, Answer Option 1 
+              2 = cIFP, Answer Option 2
+              3 = cIFP, Answer Option 3
+              4 = cIFP, Answer Option 4
+              5 = cIFP, Answer Option 5
+              6 = Ordered Multinomial
 
 ```
 
 
-But that code just makes it pretty. To access it in R, after loading `gjp::` with `library(gjp)`:
+### `q_type` is all 0
+
+Makes sure it's categorical.
 
 ```{r}
  
-forecasts
+filtered_data$q_type %>% summary()
 
-# to see the if questions, we can filter by q_conditional
-forecasts %>% 
-  dplyr::filter(q_conditional == 1) %>% 
-  head() %>% 
-  select(q_text, options)
+```
+
+### `n_opts` is 2
+
+And that it is binomial, not multinomial.
+
+```{r}
+
+filtered_data$n_opts %>% summary()
+ 
+```
+
+## `q_status` is closed
+
+Check we don't have any voided questions.
+
+```{r}
+ 
+filtered_data$q_status %>% table()
+
+```
+
+## `outcome`
+
+Now, I'm not sure about this. Here's what I have so far.
+
+There is an `outcome` variable in the ifps.csv file.
+
+```{r}
+ 
+questions$outcome %>% str() 
+
+```
+
+And there are two variables in the forecasts data that have similar results. 
+
+I haven't been able to find documentation on these variables: `answer_option` and `training`. But we can take a look at the matchings.
+
+```{r}
+filtered_data$answer_option %>% str()
+filtered_data$training %>% str()
+
+```
+
+We can also take a look at the combinations of outcome with these variables. 
+
+```{r}
+filtered_data %>% count(outcome, answer_option)
+filtered_data %>% count(outcome, training)
+
+ 
+```
+
+
+I don't like the look of either of these, frankly. Anca, can you shed any light?  
+
+## wide by time
+
+Now this is the tricky one.
+
+
+```
+from variables.txt
+
+fcast_type    0 = new, first forecast on an IFP by a user
+              1 = update, subsequent forecast by a user
+              2 = affirm, update to a forecast with no change in value
+              4 = withdraw (probabilities show last standing, individual scoring stops after this date)
+
+```
+
+Am I correct in the understanding, you would like the `value` of the user's first and last input? 
+
+Do you think we can use `fcast_type`, or do I need to do something more clever with the time stamps? 
+
+# output data
+
+```{r}
+# wrangle into desired format
+output_data <-  
+  filtered_data %>% 
+  mutate(
+    answer_correct = as.numeric(answer_correct),
+    q_conditional = as.numeric(q_conditional)
+    
+  ) %>% 
+  select(
+    userId = user_id,
+    questionId = ifp_id,
+    estimated_probability_ofOutput1 = value,
+    outcome = answer_correct,
+    cond_question = q_conditional
+  )
+
 
 
 ```
 
-you can write this table out of R to a .csv with 
+
 
 ```{r eval=FALSE}
 
-# You may need to install.packages("readr")
-readr::write_csv(forecasts, "<path/file>.csv") 
- 
-```
-
-where you replace `<path/file>` with your desired file name and location.
-
-
-## these data are documented
-
-This is (optimistically) where you'll find more information about the size of the table, and what columns and rows it has. 
-
-```{r eval=FALSE}
-# check out the help for a dataset in gjp
-library(gjp)
-?question_results
+write_csv(output_data, "forecast.csv")
 
 ```
 
-
-## but wait there's more
-
-But there's some other datasets, too.
-
-```{r}
-
-# question results
-question_results %>% head()
-
-# meta data about all data files
-meta_data %>% head()
-
-# participants responses raw; the outcomes are extracted from this
-participants_responses %>% dim()
-
-# questions text, number, and year reference
-questions_text %>% head()
-
-# questions reference file provided
-questions %>% dim()
-
-```
-
-## after Germany
-
-Proper documentation and those demographics for Bonnie. 
