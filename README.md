@@ -394,6 +394,9 @@ output_data <-
   )
 ```
 
+You can download a .csv of these data
+[here](https://github.com/softloud/gjp/blob/master/forecast.csv).
+
 ``` r
 
 write_csv(output_data, "forecast.csv")
