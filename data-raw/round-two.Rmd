@@ -1,22 +1,17 @@
 ---
-output: github_document
+title: "round two"
+author: "Charles T. Gray"
+date: "17/10/2019"
+output: 
+    html_document:
+        toc: true
+        toc_float: true
+        code_folding: hide
 ---
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
-)
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 ```
-
-# gjp
-
-<!-- badges: start -->
-<!-- badges: end -->
 
 
 ```{r messages=FALSE, warning=FALSE}
@@ -33,7 +28,7 @@ conflicted::conflict_prefer("filter", winner = "dplyr")
 
 # objective
 
-We wish to have the following desired output variables with filters applied. 
+We wish to have 
 
 ## desired output
 
@@ -76,8 +71,6 @@ all_data <-
 
 ```
 
-
-I _think_ these errors are innocuous misreads of the team variable, but am happy to look into this further if you think it warrants it. 
 
 # get variables
 
@@ -134,7 +127,8 @@ fcasts_var <- all_data %>% # all fcasts .csv files bundled
         user_id, 
         value, # estimated probability 
         q_status, # filter by closed
-        timestamp
+        fcast_type,
+        answer_option
         )
  
 
@@ -147,13 +141,14 @@ questions_var <- questions %>%
            )  %>% 
     mutate(
         # mark as conditional
-        q_conditional = n_opts == 2
+        q_conditional = q_type == 0 & n_opts == 2
     ) 
 
 
 # join together
 output_var <- 
-    inner_join(questions_var, fcasts_var, by = "ifp_id")
+    inner_join(questions_var, fcasts_var, by = "ifp_id") %>% 
+    mutate(answer_correct = answer_option == outcome)
 
 # take a look
 output_var %>% skimr::skim()
@@ -172,7 +167,7 @@ filtered_data <-
         q_status == "closed"
     )
 
-filtered_data %>% skimr::skim()
+
 ```
 
 Now, let's check the variables of interest before we remove them.
@@ -196,9 +191,9 @@ q_type        0 = regular binomial or multinomial
 ```
 
 
-### `q_type`, not filtered
+### `q_type` is all 0
 
-Update, now we are not filtering on q_type. 
+Makes sure it's categorical.
 
 ```{r}
  
@@ -228,80 +223,39 @@ filtered_data$q_status %>% table()
 
 ## `outcome`
 
-Now, I'm not sure about this. Here's what I have so far.
+Now, I'm not sure about this. 
 
-There is an `outcome` variable in the ifps.csv file.
+Here's what I _think_ I understand.
 
-```{r}
- 
-questions$outcome %>% str() 
+We want to know if the user answered the question correctly, and have this as a variable with 0 for incorrect and 1 for correct.
 
-```
+Now, in the questions dataset, there is a the outcome option.
+
+
+
 
 ## wide by time
 
-We need to flag which ones are first and last, for each user.
-
-```{r}
-filtered_times <- filtered_data %>% 
-  group_by(ifp_id, user_id, outcome) %>% 
-  summarise(min_time = min(timestamp),
-            max_time = max(timestamp)) %>% 
-  gather(key = terminal, value = timestamp, min_time, max_time) %>% 
-  left_join(filtered_data) %>% 
-    select(ifp_id, user_id, outcome, q_conditional, value, terminal) 
-
-filtered_times %>% 
-  count(ifp_id, user_id, outcome)
-
-```
-
-
-
-
-```{r eval=FALSE}
-
-# this doesn't run 
-filtered_times %>% 
-  group_by(ifp_id, user_id, outcome) %>% 
-  spread(key = terminal, value = value)
- 
+Now this is the tricky one.
 
 
 ```
+from variables.txt
 
+fcast_type    0 = new, first forecast on an IFP by a user
+              1 = update, subsequent forecast by a user
+              2 = affirm, update to a forecast with no change in value
+              4 = withdraw (probabilities show last standing, individual scoring stops after this date)
+
+```
+
+Am I correct in the understanding, you would like the `value` of the user's first and last input? 
 
 # output data
 
-```{r}
-# wrangle into desired format
-output_data <-  
-  filtered_times %>% 
-  mutate(
-    q_conditional = as.numeric(q_conditional),
-    outcome = if_else(outcome == "a", 1, 0)
-  ) %>% 
-  select(
-    userId = user_id,
-    questionId = ifp_id,
-    estimated_probability_of_Output1 = value,
-    outcome = outcome,
-    cond_question = q_conditional
-  )
-
-# take a look
-output_data %>% head()
-
-```
-
-
-
-
-You can download a .csv of these data [here](https://github.com/softloud/gjp/blob/master/forecast.csv).
-
 ```{r eval=FALSE}
 
-write_csv(output_data, "forecast.csv")
+write_csv(output_data, "data-raw/forecast_data.csv")
 
 ```
 

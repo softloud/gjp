@@ -11,12 +11,12 @@
  
 # packages used in this analysis
 library(tidyverse, quietly = TRUE)
-#> ── Attaching packages ─────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
+#> ── Attaching packages ───────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
 #> ✔ ggplot2 3.2.1     ✔ purrr   0.3.2
 #> ✔ tibble  2.1.3     ✔ dplyr   0.8.3
 #> ✔ tidyr   0.8.3     ✔ stringr 1.4.0
 #> ✔ readr   1.3.1     ✔ forcats 0.4.0
-#> ── Conflicts ────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+#> ── Conflicts ──────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
 #> ✖ dplyr::filter() masks stats::filter()
 #> ✖ dplyr::lag()    masks stats::lag()
 library(gjp)
@@ -141,9 +141,7 @@ fcasts_var <- all_data %>% # all fcasts .csv files bundled
         user_id, 
         value, # estimated probability 
         q_status, # filter by closed
-        fcast_type,
-        answer_option,
-        training
+        timestamp
         )
  
 
@@ -156,50 +154,49 @@ questions_var <- questions %>%
            )  %>% 
     mutate(
         # mark as conditional
-        q_conditional = q_type == 0 & n_opts == 2
+        q_conditional = n_opts == 2
     ) 
 
 
 # join together
 output_var <- 
-    inner_join(questions_var, fcasts_var, by = "ifp_id") %>% 
-    mutate(answer_correct = answer_option == outcome)
+    inner_join(questions_var, fcasts_var, by = "ifp_id")
 
 # take a look
 output_var %>% skimr::skim()
 #> Skim summary statistics
 #>  n obs: 3143460 
-#>  n variables: 12 
+#>  n variables: 9 
 #> 
-#> ── Variable type:character ─────────────────────────────────────────────────────────────────────────────────────
-#>       variable missing complete       n min max empty n_unique
-#>  answer_option       0  3143460 3143460   1   1     0        5
-#>         ifp_id       0  3143460 3143460   6   6     0      614
-#>        outcome  359417  2784043 3143460   1   1     0        5
-#>       q_status       0  3143460 3143460   6   6     0        3
-#>       training       0  3143460 3143460   1   1     0       13
+#> ── Variable type:character ───────────────────────────────────────────────────────────────────────────────────────────
+#>  variable missing complete       n min max empty n_unique
+#>    ifp_id       0  3143460 3143460   6   6     0      614
+#>   outcome  359417  2784043 3143460   1   1     0        5
+#>  q_status       0  3143460 3143460   6   6     0        3
 #> 
-#> ── Variable type:logical ───────────────────────────────────────────────────────────────────────────────────────
-#>        variable missing complete       n mean
-#>  answer_correct  359417  2784043 3143460 0.4 
-#>   q_conditional       0  3143460 3143460 0.46
-#>                                   count
-#>  FAL: 1663893, TRU: 1120150, NA: 359417
-#>       FAL: 1685804, TRU: 1457656, NA: 0
+#> ── Variable type:logical ─────────────────────────────────────────────────────────────────────────────────────────────
+#>       variable missing complete       n mean
+#>  q_conditional       0  3143460 3143460 0.62
+#>                              count
+#>  TRU: 1960790, FAL: 1182670, NA: 0
 #> 
-#> ── Variable type:numeric ───────────────────────────────────────────────────────────────────────────────────────
-#>    variable missing complete       n     mean       sd p0     p25    p50
-#>  fcast_type       0  3143460 3143460     0.99     0.72  0    1       1  
-#>      n_opts       0  3143460 3143460     2.76     1.08  2    2       2  
-#>      q_type       0  3143460 3143460     1.94     2.61  0    0       0  
-#>     user_id      43  3143417 3143460 39555.06 53749.65  3 3926    9068  
-#>       value       0  3143460 3143460     0.41     0.37  0    0.05    0.3
+#> ── Variable type:numeric ─────────────────────────────────────────────────────────────────────────────────────────────
+#>  variable missing complete       n     mean       sd p0     p25    p50
+#>    n_opts       0  3143460 3143460     2.76     1.08  2    2       2  
+#>    q_type       0  3143460 3143460     1.94     2.61  0    0       0  
+#>   user_id      43  3143417 3143460 39555.06 53749.65  3 3926    9068  
+#>     value       0  3143460 3143460     0.41     0.37  0    0.05    0.3
 #>        p75   p100     hist
-#>       1         4 ▃▇▁▂▁▁▁▁
 #>       4         5 ▇▁▁▁▁▂▁▂
 #>       6         6 ▇▁▁▁▁▁▁▅
 #>  123238    182001 ▇▁▁▁▁▂▁▁
 #>       0.79      1 ▇▃▂▂▁▂▂▅
+#> 
+#> ── Variable type:POSIXct ─────────────────────────────────────────────────────────────────────────────────────────────
+#>   variable missing complete       n        min        max     median
+#>  timestamp       0  3143460 3143460 2011-08-31 2015-06-09 2014-08-28
+#>  n_unique
+#>   1215151
 ```
 
 # filters
@@ -216,38 +213,36 @@ filtered_data <-
 
 filtered_data %>% skimr::skim()
 #> Skim summary statistics
-#>  n obs: 1403866 
-#>  n variables: 12 
+#>  n obs: 1659422 
+#>  n variables: 9 
 #> 
-#> ── Variable type:character ─────────────────────────────────────────────────────────────────────────────────────
-#>       variable missing complete       n min max empty n_unique
-#>  answer_option       0  1403866 1403866   1   1     0        2
-#>         ifp_id       0  1403866 1403866   6   6     0      303
-#>        outcome       0  1403866 1403866   1   1     0        2
-#>       q_status       0  1403866 1403866   6   6     0        1
-#>       training       0  1403866 1403866   1   1     0       13
+#> ── Variable type:character ───────────────────────────────────────────────────────────────────────────────────────────
+#>  variable missing complete       n min max empty n_unique
+#>    ifp_id       0  1659422 1659422   6   6     0      382
+#>   outcome       0  1659422 1659422   1   1     0        2
+#>  q_status       0  1659422 1659422   6   6     0        1
 #> 
-#> ── Variable type:logical ───────────────────────────────────────────────────────────────────────────────────────
-#>        variable missing complete       n mean
-#>  answer_correct       0  1403866 1403866  0.5
-#>   q_conditional       0  1403866 1403866  1  
-#>                            count
-#>  FAL: 701933, TRU: 701933, NA: 0
-#>              TRU: 1403866, NA: 0
+#> ── Variable type:logical ─────────────────────────────────────────────────────────────────────────────────────────────
+#>       variable missing complete       n mean               count
+#>  q_conditional       0  1659422 1659422    1 TRU: 1659422, NA: 0
 #> 
-#> ── Variable type:numeric ───────────────────────────────────────────────────────────────────────────────────────
-#>    variable missing complete       n     mean       sd p0     p25    p50
-#>  fcast_type       0  1403866 1403866     0.94     0.72  0    0       1  
-#>      n_opts       0  1403866 1403866     2        0     2    2       2  
-#>      q_type       0  1403866 1403866     0        0     0    0       0  
-#>     user_id       0  1403866 1403866 40539.4  54691.28  3 3581    9002  
-#>       value       0  1403866 1403866     0.5      0.36  0    0.15    0.5
-#>        p75   p100     hist
-#>       1         4 ▃▇▁▂▁▁▁▁
-#>       2         2 ▁▁▁▇▁▁▁▁
-#>       0         0 ▁▁▁▇▁▁▁▁
-#>  123985    182001 ▇▁▁▁▁▂▁▁
-#>       0.85      1 ▇▅▂▃▂▃▃▇
+#> ── Variable type:numeric ─────────────────────────────────────────────────────────────────────────────────────────────
+#>  variable missing complete       n     mean       sd p0     p25    p50
+#>    n_opts       0  1659422 1659422     2        0     2    2       2  
+#>    q_type       0  1659422 1659422     0.28     0.69  0    0       0  
+#>   user_id       0  1659422 1659422 38121.13 53333.16  3 3559    8811  
+#>     value       0  1659422 1659422     0.5      0.36  0    0.15    0.5
+#>       p75   p100     hist
+#>      2         2 ▁▁▁▇▁▁▁▁
+#>      0         4 ▇▁▁▁▁▁▁▁
+#>  23336    182001 ▇▁▁▁▁▂▁▁
+#>      0.85      1 ▇▃▂▃▂▃▃▇
+#> 
+#> ── Variable type:POSIXct ─────────────────────────────────────────────────────────────────────────────────────────────
+#>   variable missing complete       n        min        max     median
+#>  timestamp       0  1659422 1659422 2011-08-31 2015-06-09 2014-05-08
+#>  n_unique
+#>    811223
 ```
 
 Now, let’s check the variables of interest before we remove them.
@@ -266,15 +261,15 @@ Now, let’s check the variables of interest before we remove them.
                   5 = cIFP, Answer Option 5
                   6 = Ordered Multinomial
 
-### `q_type` is all 0
+### `q_type`, not filtered
 
-Makes sure it’s categorical.
+Update, now we are not filtering on q\_type.
 
 ``` r
  
 filtered_data$q_type %>% summary()
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#>       0       0       0       0       0       0
+#>  0.0000  0.0000  0.0000  0.2841  0.0000  4.0000
 ```
 
 ### `n_opts` is 2
@@ -297,7 +292,7 @@ Check we don’t have any voided questions.
 filtered_data$q_status %>% table()
 #> .
 #>  closed 
-#> 1403866
+#> 1659422
 ```
 
 ## `outcome`
@@ -312,98 +307,78 @@ questions$outcome %>% str()
 #>  chr [1:617] "b" "b" "b" "b" "a" "b" "b" "a" "c" "b" "b" "b" "b" "c" ...
 ```
 
-And there are two variables in the forecasts data that have similar
-results.
-
-I haven’t been able to find documentation on these variables:
-`answer_option` and `training`. But we can take a look at the matchings.
-
-``` r
-filtered_data$answer_option %>% str()
-#>  chr [1:1403866] "a" "b" "a" "b" "a" "b" "a" "b" "a" "b" "a" "b" "a" ...
-filtered_data$training %>% str()
-#>  chr [1:1403866] "a" "a" "a" "a" "a" "a" "a" "a" "a" "a" "a" "a" "a" ...
-```
-
-We can also take a look at the combinations of outcome with these
-variables.
-
-``` r
-filtered_data %>% count(outcome, answer_option)
-#> # A tibble: 4 x 3
-#>   outcome answer_option      n
-#>   <chr>   <chr>          <int>
-#> 1 a       a             157963
-#> 2 a       b             157963
-#> 3 b       a             543970
-#> 4 b       b             543970
-filtered_data %>% count(outcome, training)
-#> # A tibble: 26 x 3
-#>    outcome training     n
-#>    <chr>   <chr>    <int>
-#>  1 a       a        49792
-#>  2 a       b        87040
-#>  3 a       c        18330
-#>  4 a       d        21176
-#>  5 a       h        12406
-#>  6 a       n         2904
-#>  7 a       p        13062
-#>  8 a       q         1488
-#>  9 a       r        32842
-#> 10 a       s        28516
-#> # … with 16 more rows
-```
-
-I don’t like the look of either of these, frankly. Anca, can you shed
-any light?
-
 ## wide by time
 
-Now this is the tricky one.
+We need to flag which ones are first and last, for each user.
 
-    from variables.txt
-    
-    fcast_type    0 = new, first forecast on an IFP by a user
-                  1 = update, subsequent forecast by a user
-                  2 = affirm, update to a forecast with no change in value
-                  4 = withdraw (probabilities show last standing, individual scoring stops after this date)
+``` r
+filtered_times <- filtered_data %>% 
+  group_by(ifp_id, user_id, outcome) %>% 
+  summarise(min_time = min(timestamp),
+            max_time = max(timestamp)) %>% 
+  gather(key = terminal, value = timestamp, min_time, max_time) %>% 
+  left_join(filtered_data) %>% 
+    select(ifp_id, user_id, outcome, q_conditional, value, terminal) 
+#> Joining, by = c("ifp_id", "user_id", "outcome", "timestamp")
 
-Am I correct in the understanding, you would like the `value` of the
-user’s first and last input?
+filtered_times %>% 
+  count(ifp_id, user_id, outcome)
+#> # A tibble: 323,833 x 4
+#> # Groups:   ifp_id, user_id [323,833]
+#>    ifp_id user_id outcome     n
+#>    <chr>    <dbl> <chr>   <int>
+#>  1 1001-0       3 b           4
+#>  2 1001-0       6 b           4
+#>  3 1001-0      15 b           4
+#>  4 1001-0      19 b           4
+#>  5 1001-0      23 b           4
+#>  6 1001-0      25 b           4
+#>  7 1001-0      33 b           4
+#>  8 1001-0      35 b           4
+#>  9 1001-0      36 b           4
+#> 10 1001-0      41 b           4
+#> # … with 323,823 more rows
+```
 
-Do you think we can use `fcast_type`, or do I need to do something more
-clever with the time stamps?
+``` r
+
+# this doesn't run 
+filtered_times %>% 
+  group_by(ifp_id, user_id, outcome) %>% 
+  spread(key = terminal, value = value)
+ 
+```
 
 # output data
 
 ``` r
 # wrangle into desired format
 output_data <-  
-  filtered_data %>% 
+  filtered_times %>% 
   mutate(
-    answer_correct = as.numeric(answer_correct),
-    q_conditional = as.numeric(q_conditional)
-    
+    q_conditional = as.numeric(q_conditional),
+    outcome = if_else(outcome == "a", 1, 0)
   ) %>% 
   select(
     userId = user_id,
     questionId = ifp_id,
-    estimated_probability_ofOutput1 = value,
-    outcome = answer_correct,
+    estimated_probability_of_Output1 = value,
+    outcome = outcome,
     cond_question = q_conditional
   )
 
 # take a look
 output_data %>% head()
 #> # A tibble: 6 x 5
-#>   userId questionId estimated_probability_ofOutput1 outcome cond_question
-#>    <dbl> <chr>                                <dbl>   <dbl>         <dbl>
-#> 1    600 1001-0                                 0.1       0             1
-#> 2    600 1001-0                                 0.9       1             1
-#> 3   2986 1001-0                                 0.1       0             1
-#> 4   2986 1001-0                                 0.9       1             1
-#> 5   3469 1001-0                                 0.2       0             1
-#> 6   3469 1001-0                                 0.8       1             1
+#> # Groups:   questionId, userId [3]
+#>   userId questionId estimated_probability_of_Output1 outcome cond_question
+#>    <dbl> <chr>                                 <dbl>   <dbl>         <dbl>
+#> 1      3 1001-0                                 0.5        0             1
+#> 2      3 1001-0                                 0.5        0             1
+#> 3      6 1001-0                                 0.4        0             1
+#> 4      6 1001-0                                 0.6        0             1
+#> 5     15 1001-0                                 0.25       0             1
+#> 6     15 1001-0                                 0.75       0             1
 ```
 
 You can download a .csv of these data
